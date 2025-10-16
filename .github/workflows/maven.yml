@@ -252,75 +252,31 @@ jobs:
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           docker pull ghcr.io/${{ github.repository }}:latest
 
-      - name: Create Docker network
-        run: docker network create yushan-test-network || true
-
-      - name: Start Test PostgreSQL
-        run: |
-          docker run -d \
-            --name gamification-postgres-test \
-            --network yushan-test-network \
-            -e POSTGRES_USER=yushan_gamification \
-            -e POSTGRES_PASSWORD=test_password \
-            -e POSTGRES_DB=yushan_gamification \
-            -p 5437:5432 \
-            postgres:16-alpine
-          
-          # Wait for PostgreSQL to be ready
-          echo "Waiting for PostgreSQL to start..."
-          for i in {1..30}; do
-            if docker exec gamification-postgres-test pg_isready -U yushan_gamification > /dev/null 2>&1; then
-              echo "PostgreSQL is ready"
-              break
-            fi
-            echo "Attempt $i/30..."
-            sleep 2
-          done
-
-      - name: Start Test Redis
-        run: |
-          docker run -d \
-            --name gamification-redis-test \
-            --network yushan-test-network \
-            -p 6384:6379 \
-            redis:7-alpine
-
       - name: Start Gamification Service container
         run: |
           docker run -d \
-            --name gamification-service-test \
-            --network yushan-test-network \
-            -p 8084:8084 \
-            -e SPRING_PROFILES_ACTIVE=docker \
-            -e DB_HOST=gamification-postgres-test \
-            -e DB_PORT=5432 \
-            -e DB_USERNAME=yushan_gamification \
-            -e DB_PASSWORD=test_password \
-            -e DB_NAME=yushan_gamification \
-            -e REDIS_HOST=gamification-redis-test \
-            -e REDIS_PORT=6379 \
-            -e EUREKA_CLIENT_ENABLED=false \
+            --name engagement-service-test \
+            -p 8085:8085 \
+            -e SPRING_PROFILES_ACTIVE=test \
             ghcr.io/${{ github.repository }}:latest || true
           
           # Wait for service to be ready
           echo "Waiting for service to start..."
-          for i in {1..60}; do
-            if curl -s http://localhost:8084/actuator/health > /dev/null 2>&1; then
+          for i in {1..30}; do
+            if curl -s http://localhost:8085/actuator/health > /dev/null 2>&1; then
               echo "Service is ready"
-              curl -s http://localhost:8084/actuator/health | jq '.' || true
               exit 0
             fi
-            echo "Attempt $i/60..."
-            sleep 3
+            echo "Attempt $i/30..."
+            sleep 5
           done
           echo "Service failed to start, checking logs..."
-          docker logs gamification-service-test
-          exit 1
+          docker logs engagement-service-test
 
       - name: ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.13.0
         with:
-          target: 'http://localhost:8084'
+          target: 'http://localhost:8085'
           cmd_options: "-a -m 10 -J zap.json -w zap.md -r zap.html"
         continue-on-error: true
 
