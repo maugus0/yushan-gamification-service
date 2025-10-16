@@ -1,0 +1,101 @@
+services:
+  # PostgreSQL Database for Gamification Service
+  postgres:
+    image: postgres:16-alpine
+    container_name: yushan-gamification-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USERNAME:-yushan_gamification}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-change_me_in_production}
+      POSTGRES_DB: ${DB_NAME:-yushan_gamification}
+    ports:
+      - "5434:5432"  # External:Internal (avoiding conflict with other services)
+    volumes:
+      - gamification_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - yushan-platform-network
+
+  # Redis Cache for Gamification Service (for leaderboards)
+  redis:
+    image: redis:7-alpine
+    container_name: yushan-gamification-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6381:6379"  # External:Internal (avoiding conflict with other services)
+    volumes:
+      - gamification_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - yushan-platform-network
+
+  # Gamification Service
+  gamification-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: yushan-gamification-service
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+      # Database Configuration
+      DB_USERNAME: ${DB_USERNAME:-yushan_gamification}
+      DB_PASSWORD: ${DB_PASSWORD:-change_me_in_production}
+      DB_NAME: ${DB_NAME:-yushan_gamification}
+      DB_HOST: postgres
+      DB_PORT: 5432
+
+      # Redis Configuration (for leaderboards)
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+
+      # Eureka Configuration
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://yushan-eureka-registry:8761/eureka/
+
+      # Server Configuration
+      SERVER_PORT: 8085
+
+      # Gamification-specific Configuration
+      GAMIFICATION_LEADERBOARD_CACHE_TTL: ${LEADERBOARD_CACHE_TTL:-300}
+      GAMIFICATION_LEADERBOARD_UPDATE_INTERVAL: ${LEADERBOARD_UPDATE_INTERVAL:-60}
+      GAMIFICATION_ACHIEVEMENTS_NOTIFICATION_ENABLED: ${ACHIEVEMENTS_NOTIFICATION_ENABLED:-true}
+      GAMIFICATION_POINTS_CHAPTER_READ: ${POINTS_CHAPTER_READ:-10}
+      GAMIFICATION_POINTS_REVIEW_WRITTEN: ${POINTS_REVIEW_WRITTEN:-50}
+      GAMIFICATION_POINTS_DAILY_LOGIN: ${POINTS_DAILY_LOGIN:-5}
+    ports:
+      - "8085:8085"
+    networks:
+      - yushan-platform-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8085/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+volumes:
+  gamification_pg_data:
+    driver: local
+  gamification_redis_data:
+    driver: local
+
+# Connect to the existing Eureka network
+networks:
+  yushan-platform-network:
+    external: true
