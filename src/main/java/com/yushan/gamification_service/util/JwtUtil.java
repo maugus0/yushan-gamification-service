@@ -1,3 +1,5 @@
+// 最终文件路径: com/yushan/gamification_service/util/JwtUtil.java
+
 package com.yushan.gamification_service.util;
 
 import io.jsonwebtoken.Claims;
@@ -42,18 +44,43 @@ public class JwtUtil {
     }
 
     public boolean validateToken(String authToken) {
+        logger.info(">>> Validating JWT Token...");
+        logger.info("Token length: {}", authToken.length());
+        logger.info("Token preview: {}...", authToken.substring(0, Math.min(authToken.length(), 50)));
+
         try {
-            Jwts.parser().verifyWith(getSigningKey()).build().parse(authToken);
+            Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(authToken);
+            logger.info(">>> Token validation: SUCCESS ✓✓✓");
             return true;
         } catch (MalformedJwtException ex) {
-            logger.error("Invalid JWT token");
+            logger.error(">>> Token validation FAILED: Invalid JWT token");
+            logger.error(">>> Error details: {}", ex.getMessage());
         } catch (ExpiredJwtException ex) {
-            logger.error("Expired JWT token");
+            logger.error(">>> Token validation FAILED: Expired JWT token");
+            logger.error(">>> Token expired at: {}", ex.getClaims().getExpiration());
+            logger.error(">>> Current time: {}", new java.util.Date());
         } catch (UnsupportedJwtException ex) {
-            logger.error("Unsupported JWT token");
+            logger.error(">>> Token validation FAILED: Unsupported JWT token");
+            logger.error(">>> Error details: {}", ex.getMessage());
         } catch (IllegalArgumentException ex) {
-            logger.error("JWT claims string is empty.");
+            logger.error(">>> Token validation FAILED: JWT claims string is empty");
+            logger.error(">>> Error details: {}", ex.getMessage());
+        } catch (Exception ex) {
+            logger.error(">>> Token validation FAILED: Unknown error");
+            logger.error(">>> Exception type: {}", ex.getClass().getName());
+            logger.error(">>> Error message: {}", ex.getMessage());
+            logger.error(">>> Stack trace:", ex);
         }
         return false;
+    }
+
+
+    public String generateToken(UUID userId) {
+        return Jwts.builder()
+                .subject(userId.toString())
+                .issuedAt(new java.util.Date())
+                .expiration(new java.util.Date(System.currentTimeMillis() + 1000 * 60 * 60))
+                .signWith(getSigningKey())
+                .compact();
     }
 }

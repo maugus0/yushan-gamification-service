@@ -1,28 +1,15 @@
 package com.yushan.gamification_service.entity;
 
-import jakarta.persistence.*;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
-@Entity
-@Table(name = "exp_transactions")
 public class ExpTransaction {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private Long id;
-
-    @Column(name = "user_id", nullable = false)
     private UUID userId;
-
-    @Column(nullable = false)
     private Double amount;
-
     private String reason;
-
-    @Column(name = "created_at", updatable = false, insertable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
     private OffsetDateTime createdAt;
-
-    // Getters and Setters
 
     public Long getId() {
         return id;

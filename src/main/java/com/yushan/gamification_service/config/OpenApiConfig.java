@@ -13,16 +13,14 @@ public class OpenApiConfig {
 
     @Bean
     public OpenAPI customOpenAPI() {
-        final String securitySchemeName = "bearerAuth";
+        final String securitySchemeName = "Bearer Authentication";
 
         return new OpenAPI()
                 .info(new Info()
-                        .title("Yushan Gamification Service API")
-                        .version("1.0.0")
-                        .description("API documentation for the Gamification Service, responsible for EXP, Yuan, achievements, and rewards."))
-
+                        .title("Gamification Service API")
+                        .version("1.0")
+                        .description("游戏化服务API文档"))
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
-
                 .components(new Components()
                         .addSecuritySchemes(securitySchemeName,
                                 new SecurityScheme()
@@ -30,6 +28,7 @@ public class OpenApiConfig {
                                         .type(SecurityScheme.Type.HTTP)
                                         .scheme("bearer")
                                         .bearerFormat("JWT")
+                                        .description("请输入JWT Token（格式：Bearer <token>）")
                         )
                 );
     }

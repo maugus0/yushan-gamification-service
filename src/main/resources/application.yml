@@ -2,6 +2,14 @@ spring:
   application:
     name: gamification-service
 
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
+    default-property-inclusion: non_null
+    time-zone: Asia/Singapore
+
   datasource:
     url: jdbc:postgresql://localhost:5434/yushan_gamification
     username: yushan_gamification
@@ -31,9 +39,11 @@ spring:
 
   # MyBatis Configuration
   mybatis:
-    mapper-locations: classpath:/mapper/**Mapper.xml
+    mapper-locations: classpath:mapper/*.xml
     type-aliases-package: com.yushan.gamification_service.entity
-    config-location: classpath:config/mybatis-config.xml
+    configuration:
+      map-underscore-to-camel-case: true
+      log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
   # Redis Configuration (disabled for initial setup)
   data:
@@ -107,6 +117,10 @@ logging:
     org.springframework.cloud: INFO
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    com.yushan.gamification_service.security: DEBUG
+    org.springframework.security: DEBUG
+    com.yushan.gamification_service.util.JwtUtil: DEBUG
+
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
@@ -117,3 +131,11 @@ jwt:
   # It should be a long, complex, Base64 encoded string.
   # For development, we use a default value. In production, this MUST be set via environment variables.
   secret: ${JWT_SECRET:YushanBackendJWTSecretKey2024ForSecureTokenGenerationAndValidation}
+
+gamification:
+  rewards:
+    daily-login-exp: 5
+    daily-login-yuan: 1
+    comment-exp: 5
+    review-exp: 5
+

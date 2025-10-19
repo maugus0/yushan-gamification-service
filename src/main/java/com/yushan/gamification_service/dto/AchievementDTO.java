@@ -1,12 +1,13 @@
-package com.yushan.gamification_service.entity;
+package com.yushan.gamification_service.dto;
 
-public class Achievement {
+import java.time.OffsetDateTime;
 
+public class AchievementDTO {
     private String id;
     private String name;
     private String description;
-    private String criteriaJson;
     private String iconUrl;
+    private OffsetDateTime unlockedAt;
 
     public String getId() {
         return id;
@@ -32,19 +33,19 @@ public class Achievement {
         this.description = description;
     }
 
-    public String getCriteriaJson() {
-        return criteriaJson;
-    }
-
-    public void setCriteriaJson(String criteriaJson) {
-        this.criteriaJson = criteriaJson;
-    }
-
     public String getIconUrl() {
         return iconUrl;
     }
 
     public void setIconUrl(String iconUrl) {
         this.iconUrl = iconUrl;
+    }
+
+    public OffsetDateTime getUnlockedAt() {
+        return unlockedAt;
+    }
+
+    public void setUnlockedAt(OffsetDateTime unlockedAt) {
+        this.unlockedAt = unlockedAt;
     }
 }

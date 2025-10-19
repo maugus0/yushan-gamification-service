@@ -1,27 +1,16 @@
 package com.yushan.gamification_service.entity;
 
-import jakarta.persistence.*;
-
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
-@Entity
-@Table(name = "user_achievements", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"user_id", "achievement_id"})
-})
-public class UserAchievement {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
-    @Column(name = "user_id", nullable = false)
+public class UserAchievement {
+
+    private Long id;
     private UUID userId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "achievement_id", nullable = false)
-    private Achievement achievement;
+    private String achievementId;
 
-    @Column(name = "unlocked_at", updatable = false, insertable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
     private OffsetDateTime unlockedAt;
 
     public Long getId() {
@@ -40,12 +29,12 @@ public class UserAchievement {
         this.userId = userId;
     }
 
-    public Achievement getAchievement() {
-        return achievement;
+    public String getAchievementId() {
+        return achievementId;
     }
 
-    public void setAchievement(Achievement achievement) {
-        this.achievement = achievement;
+    public void setAchievementId(String achievementId) {
+        this.achievementId = achievementId;
     }
 
     public OffsetDateTime getUnlockedAt() {

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yushan.gamification_service.dao.ExpTransactionMapper">
+
+    <insert id="insert" parameterType="com.yushan.gamification_service.entity.ExpTransaction" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO exp_transactions (user_id, amount, reason, created_at)
+        VALUES (#{userId}, #{amount}, #{reason}, NOW())
+    </insert>
+
+    <select id="sumAmountByUserId" resultType="double">
+        SELECT COALESCE(SUM(amount), 0.0)
+        FROM exp_transactions
+        WHERE user_id = #{userId}
+    </select>
+
+</mapper>

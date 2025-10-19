@@ -1,32 +1,12 @@
-package com.yushan.gamification_service.entity;
+package com.yushan.gamification_service.dto;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
-
-public class YuanTransaction {
-
-    private Long id;
-    private UUID userId;
+public class YuanTransactionDTO {
     private Double amount;
     private String description;
     private OffsetDateTime createdAt;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public UUID getUserId() {
-        return userId;
-    }
-
-    public void setUserId(UUID userId) {
-        this.userId = userId;
-    }
 
     public Double getAmount() {
         return amount;

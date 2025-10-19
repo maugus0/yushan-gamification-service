@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yushan.gamification_service.dao.DailyRewardLogMapper">
+
+    <select id="findByUserId" resultType="com.yushan.gamification_service.entity.DailyRewardLog">
+        SELECT
+            id,
+            user_id AS userId,
+            last_reward_date AS lastRewardDate,
+            updated_at AS updatedAt
+        FROM
+            daily_reward_log
+        WHERE
+            user_id = #{userId}
+        LIMIT 1
+    </select>
+
+    <insert id="insert" parameterType="com.yushan.gamification_service.entity.DailyRewardLog" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO daily_reward_log (user_id, last_reward_date, updated_at)
+        VALUES (#{userId}, #{lastRewardDate}, NOW())
+    </insert>
+
+    <update id="update" parameterType="com.yushan.gamification_service.entity.DailyRewardLog">
+        UPDATE daily_reward_log
+        SET
+            last_reward_date = #{lastRewardDate},
+            updated_at = NOW()
+        WHERE
+            id = #{id}
+    </update>
+
+</mapper>
