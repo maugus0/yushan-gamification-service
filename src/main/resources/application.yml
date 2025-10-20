@@ -41,9 +41,7 @@ spring:
   mybatis:
     mapper-locations: classpath:mapper/*.xml
     type-aliases-package: com.yushan.gamification_service.entity
-    configuration:
-      map-underscore-to-camel-case: true
-      log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    config-location: classpath:config/mybatis-config.xml
 
   # Redis Configuration (disabled for initial setup)
   data:
@@ -125,12 +123,10 @@ logging:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 
-# JWT Secret Configuration
+# JWT Configuration
 jwt:
-  # IMPORTANT: This secret key MUST be identical to the one used in the Authentication Service.
-  # It should be a long, complex, Base64 encoded string.
-  # For development, we use a default value. In production, this MUST be set via environment variables.
-  secret: ${JWT_SECRET:YushanBackendJWTSecretKey2024ForSecureTokenGenerationAndValidation}
+  secret: "yushan-gamification-service-secret-key-for-jwt-token-generation-and-validation-2024"
+  issuer: "yushan-gamification-service"
 
 gamification:
   rewards:

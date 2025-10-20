@@ -64,10 +64,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 if (isValid) {
                     logger.info("Extracting user ID from token...");
-                    UUID userId = jwtUtil.getUserIdFromToken(jwt);
+                    String userId = jwtUtil.extractUserId(jwt);
                     logger.info("✓ User ID extracted: {}", userId);
 
-                    UserDetails userDetails = new User(userId.toString(), "", Collections.emptyList());
+                    UserDetails userDetails = new User(userId, "", Collections.emptyList());
                     logger.info("✓ UserDetails created: {}", userDetails.getUsername());
 
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(

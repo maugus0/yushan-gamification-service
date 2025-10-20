@@ -1,31 +1,123 @@
-// 最终文件路径: com/yushan/gamification_service/util/JwtUtil.java
-
 package com.yushan.gamification_service.util;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.UnsupportedJwtException;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.util.UUID;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+import java.util.function.Function;
 
+/**
+ * JWT Utility class for token validation and parsing
+ * 
+ * This class provides methods to:
+ * - Extract information from JWT tokens
+ * - Validate tokens
+ * - Check token expiration
+ */
 @Component
 public class JwtUtil {
 
-    private static final Logger logger = LoggerFactory.getLogger(JwtUtil.class);
-
     @Value("${jwt.secret}")
-    private String jwtSecret;
+    private String secret;
 
-    private Claims getClaimsFromToken(String token) {
+    @Value("${jwt.issuer}")
+    private String issuer;
+
+    /**
+     * Get the secret key for JWT validation
+     * 
+     * @return SecretKey object for JWT operations
+     */
+    private SecretKey getSigningKey() {
+        byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    /**
+     * Extract user ID from JWT token
+     * 
+     * @param token JWT token
+     * @return User ID from token claims
+     */
+    public String extractUserId(String token) {
+        return extractClaim(token, claims -> claims.get("userId", String.class));
+    }
+
+    /**
+     * Extract email from JWT token
+     * 
+     * @param token JWT token
+     * @return Email from token claims
+     */
+    public String extractEmail(String token) {
+        return extractClaim(token, claims -> claims.get("email", String.class));
+    }
+
+    /**
+     * Extract role from JWT token
+     * 
+     * @param token JWT token
+     * @return Role from token claims
+     */
+    public String extractRole(String token) {
+        return extractClaim(token, claims -> claims.get("role", String.class));
+    }
+
+    /**
+     * Extract user status from JWT token
+     * 
+     * @param token JWT token
+     * @return User status from token claims
+     */
+    public Integer extractStatus(String token) {
+        return extractClaim(token, claims -> claims.get("status", Integer.class));
+    }
+
+
+    /**
+     * Extract token type from JWT token
+     * 
+     * @param token JWT token
+     * @return Token type (access/refresh) from token claims
+     */
+    public String extractTokenType(String token) {
+        return extractClaim(token, claims -> claims.get("tokenType", String.class));
+    }
+
+    /**
+     * Extract expiration date from JWT token
+     * 
+     * @param token JWT token
+     * @return Expiration date
+     */
+    public Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
+    }
+
+    /**
+     * Extract specific claim from JWT token
+     * 
+     * @param token JWT token
+     * @param claimsResolver Function to extract specific claim
+     * @return Extracted claim value
+     */
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = extractAllClaims(token);
+        return claimsResolver.apply(claims);
+    }
+
+    /**
+     * Extract all claims from JWT token
+     * 
+     * @param token JWT token
+     * @return Claims object containing all token claims
+     */
+    public Claims extractAllClaims(String token) {
         return Jwts.parser()
                 .verifyWith(getSigningKey())
                 .build()
@@ -33,54 +125,49 @@ public class JwtUtil {
                 .getPayload();
     }
 
-    private SecretKey getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(this.jwtSecret);
-        return Keys.hmacShaKeyFor(keyBytes);
+    /**
+     * Check if token is expired
+     * 
+     * @param token JWT token
+     * @return true if token is expired, false otherwise
+     */
+    public Boolean isTokenExpired(String token) {
+        return extractExpiration(token).before(new Date());
     }
 
-    public UUID getUserIdFromToken(String token) {
-        String id = getClaimsFromToken(token).getSubject();
-        return UUID.fromString(id);
-    }
-
-    public boolean validateToken(String authToken) {
-        logger.info(">>> Validating JWT Token...");
-        logger.info("Token length: {}", authToken.length());
-        logger.info("Token preview: {}...", authToken.substring(0, Math.min(authToken.length(), 50)));
-
+    /**
+     * Validate token (check expiration and signature)
+     * 
+     * @param token JWT token
+     * @return true if token is valid, false otherwise
+     */
+    public Boolean validateToken(String token) {
         try {
-            Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(authToken);
-            logger.info(">>> Token validation: SUCCESS ✓✓✓");
-            return true;
-        } catch (MalformedJwtException ex) {
-            logger.error(">>> Token validation FAILED: Invalid JWT token");
-            logger.error(">>> Error details: {}", ex.getMessage());
-        } catch (ExpiredJwtException ex) {
-            logger.error(">>> Token validation FAILED: Expired JWT token");
-            logger.error(">>> Token expired at: {}", ex.getClaims().getExpiration());
-            logger.error(">>> Current time: {}", new java.util.Date());
-        } catch (UnsupportedJwtException ex) {
-            logger.error(">>> Token validation FAILED: Unsupported JWT token");
-            logger.error(">>> Error details: {}", ex.getMessage());
-        } catch (IllegalArgumentException ex) {
-            logger.error(">>> Token validation FAILED: JWT claims string is empty");
-            logger.error(">>> Error details: {}", ex.getMessage());
-        } catch (Exception ex) {
-            logger.error(">>> Token validation FAILED: Unknown error");
-            logger.error(">>> Exception type: {}", ex.getClass().getName());
-            logger.error(">>> Error message: {}", ex.getMessage());
-            logger.error(">>> Stack trace:", ex);
+            return !isTokenExpired(token);
+        } catch (Exception e) {
+            return false;
         }
-        return false;
     }
 
+    /**
+     * Check if token is access token
+     * 
+     * @param token JWT token
+     * @return true if token is access token, false otherwise
+     */
+    public Boolean isAccessToken(String token) {
+        String tokenType = extractTokenType(token);
+        return "access".equals(tokenType);
+    }
 
-    public String generateToken(UUID userId) {
-        return Jwts.builder()
-                .subject(userId.toString())
-                .issuedAt(new java.util.Date())
-                .expiration(new java.util.Date(System.currentTimeMillis() + 1000 * 60 * 60))
-                .signWith(getSigningKey())
-                .compact();
+    /**
+     * Check if token is refresh token
+     * 
+     * @param token JWT token
+     * @return true if token is refresh token, false otherwise
+     */
+    public Boolean isRefreshToken(String token) {
+        String tokenType = extractTokenType(token);
+        return "refresh".equals(tokenType);
     }
 }

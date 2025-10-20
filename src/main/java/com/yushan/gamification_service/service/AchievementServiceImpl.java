@@ -4,6 +4,7 @@ import com.yushan.gamification_service.dao.UserAchievementMapper;
 import com.yushan.gamification_service.entity.UserAchievement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,11 +21,8 @@ public class AchievementServiceImpl implements AchievementService {
     private static final String ACHIEVEMENT_ID_50_COMMENTS = "COMMENT_MASTER";
     private static final String ACHIEVEMENT_ID_FIRST_REVIEW = "REVIEW_ROOKIE";
 
-    private final UserAchievementMapper userAchievementMapper;
-
-    public AchievementServiceImpl(UserAchievementMapper userAchievementMapper) {
-        this.userAchievementMapper = userAchievementMapper;
-    }
+    @Autowired
+    private UserAchievementMapper userAchievementMapper;
 
     @Override
     @Transactional

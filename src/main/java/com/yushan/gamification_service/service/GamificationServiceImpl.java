@@ -12,6 +12,7 @@ import com.yushan.gamification_service.entity.ExpTransaction;
 import com.yushan.gamification_service.entity.YuanTransaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,26 +42,23 @@ public class GamificationServiceImpl implements GamificationService {
     @Value("${gamification.rewards.review-exp:5}")
     private double reviewExp;
 
-    private final DailyRewardLogMapper dailyRewardLogMapper;
-    private final ExpTransactionMapper expTransactionMapper;
-    private final YuanTransactionMapper yuanTransactionMapper;
-    private final LevelService levelService;
-    private final AchievementService achievementService;
-    private final UserAchievementMapper userAchievementMapper;
-
-    public GamificationServiceImpl(DailyRewardLogMapper dailyRewardLogMapper,
-                                   ExpTransactionMapper expTransactionMapper,
-                                   YuanTransactionMapper yuanTransactionMapper,
-                                   LevelService levelService,
-                                   AchievementService achievementService,
-                                   UserAchievementMapper userAchievementMapper) {
-        this.dailyRewardLogMapper = dailyRewardLogMapper;
-        this.expTransactionMapper = expTransactionMapper;
-        this.yuanTransactionMapper = yuanTransactionMapper;
-        this.levelService = levelService;
-        this.achievementService = achievementService;
-        this.userAchievementMapper = userAchievementMapper;
-    }
+    @Autowired
+    private DailyRewardLogMapper dailyRewardLogMapper;
+    
+    @Autowired
+    private ExpTransactionMapper expTransactionMapper;
+    
+    @Autowired
+    private YuanTransactionMapper yuanTransactionMapper;
+    
+    @Autowired
+    private LevelService levelService;
+    
+    @Autowired
+    private AchievementService achievementService;
+    
+    @Autowired
+    private UserAchievementMapper userAchievementMapper;
 
     @Override
     @Transactional
@@ -175,14 +173,14 @@ public class GamificationServiceImpl implements GamificationService {
         Double totalExp = expTransactionMapper.sumAmountByUserId(userId);
         Double yuanBalance = yuanTransactionMapper.sumAmountByUserId(userId);
 
-        totalExp = (totalExp == null) ? 0.0 : totalExp;
-        yuanBalance = (yuanBalance == null) ? 0.0 : yuanBalance;
+        double totalExpValue = (totalExp == null) ? 0.0 : totalExp;
+        double yuanBalanceValue = (yuanBalance == null) ? 0.0 : yuanBalance;
 
-        int currentLevel = levelService.calculateLevel(totalExp);
+        int currentLevel = levelService.calculateLevel(totalExpValue);
 
         Double expForNextLevel = levelService.getExpForNextLevel(currentLevel);
 
-        return new GamificationStatsDTO(currentLevel, totalExp, expForNextLevel, yuanBalance);
+        return new GamificationStatsDTO(currentLevel, totalExpValue, expForNextLevel, yuanBalanceValue);
     }
 
     @Override

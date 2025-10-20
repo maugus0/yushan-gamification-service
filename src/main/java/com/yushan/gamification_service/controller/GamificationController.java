@@ -4,7 +4,6 @@ import com.yushan.gamification_service.dto.ApiResponse;
 import com.yushan.gamification_service.dto.UserLoginRequestDTO;
 import com.yushan.gamification_service.service.GamificationService;
 import org.springframework.http.ResponseEntity;
-import com.yushan.gamification_service.util.TestTokenGenerator;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -14,11 +13,9 @@ import java.util.UUID;
 public class GamificationController {
 
     private final GamificationService gamificationService;
-    private final TestTokenGenerator testTokenGenerator;
 
-    public GamificationController(GamificationService gamificationService, TestTokenGenerator testTokenGenerator) {
+    public GamificationController(GamificationService gamificationService) {
         this.gamificationService = gamificationService;
-        this.testTokenGenerator = testTokenGenerator;
     }
 
     @PostMapping("/events/login")
