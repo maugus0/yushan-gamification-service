@@ -31,4 +31,45 @@
     <select id="countByUserId" resultType="int">
         SELECT COUNT(id) FROM yuan_transactions WHERE user_id = #{userId}
     </select>
+
+    <select id="findWithFilters" resultType="com.yushan.gamification_service.entity.YuanTransaction">
+        SELECT
+        id,
+        user_id AS userId,
+        amount,
+        description,
+        created_at AS createdAt
+        FROM
+        yuan_transactions
+        <where>
+            <if test="userId != null">
+                AND user_id = #{userId}
+            </if>
+            <if test="startDate != null">
+                AND created_at &gt;= #{startDate}
+            </if>
+            <if test="endDate != null">
+                AND created_at &lt;= #{endDate}
+            </if>
+        </where>
+        ORDER BY
+        created_at DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countWithFilters" resultType="long">
+        SELECT COUNT(id)
+        FROM yuan_transactions
+        <where>
+            <if test="userId != null">
+                AND user_id = #{userId}
+            </if>
+            <if test="startDate != null">
+                AND created_at &gt;= #{startDate}
+            </if>
+            <if test="endDate != null">
+                AND created_at &lt;= #{endDate}
+            </if>
+        </where>
+    </select>
 </mapper>

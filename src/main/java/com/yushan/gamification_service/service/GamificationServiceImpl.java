@@ -10,12 +10,17 @@ import com.yushan.gamification_service.dto.YuanTransactionDTO;
 import com.yushan.gamification_service.entity.DailyRewardLog;
 import com.yushan.gamification_service.entity.ExpTransaction;
 import com.yushan.gamification_service.entity.YuanTransaction;
+import com.yushan.gamification_service.dto.event.LevelUpEvent;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.yushan.gamification_service.dto.PagedResponse;
+import com.yushan.gamification_service.dto.admin.AdminYuanTransactionDTO;
+import java.time.OffsetDateTime;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -59,6 +64,11 @@ public class GamificationServiceImpl implements GamificationService {
     
     @Autowired
     private UserAchievementMapper userAchievementMapper;
+
+    @Autowired
+    private KafkaTemplate<String, Object> kafkaTemplate;
+
+    private static final String INTERNAL_EVENTS_TOPIC = "internal_gamification_events";
 
     @Override
     @Transactional
@@ -105,6 +115,8 @@ public class GamificationServiceImpl implements GamificationService {
         }
 
         logger.info("Successfully processed login and awarded daily reward for user: {}", userId);
+
+        checkLevelUpAndPublishEvent(userId, dailyLoginExp);
         achievementService.checkAndUnlockLoginAchievements(userId);
     }
 
@@ -123,6 +135,8 @@ public class GamificationServiceImpl implements GamificationService {
         long totalCommentCount = getSimulatedTotalCommentCount(userId);
 
         achievementService.checkAndUnlockCommentAchievements(userId, totalCommentCount);
+
+        checkLevelUpAndPublishEvent(userId, commentExp);
     }
 
     @Override
@@ -140,6 +154,8 @@ public class GamificationServiceImpl implements GamificationService {
         long totalReviewCount = getSimulatedTotalReviewCount(userId);
 
         achievementService.checkAndUnlockReviewAchievements(userId, totalReviewCount);
+
+        checkLevelUpAndPublishEvent(userId, reviewExp);
     }
 
     /**
@@ -154,6 +170,13 @@ public class GamificationServiceImpl implements GamificationService {
      */
     private long getSimulatedTotalReviewCount(UUID userId) {
         return TempCounter.incrementAndGet(userId, "review");
+    }
+
+    /**
+     * 【TEST】
+     */
+    private long getSimulatedTotalVoteCount(UUID userId) {
+        return TempCounter.incrementAndGet(userId, "vote");
     }
 
     /**
@@ -203,5 +226,63 @@ public class GamificationServiceImpl implements GamificationService {
     @Override
     public List<AchievementDTO> getUnlockedAchievements(UUID userId) {
         return userAchievementMapper.findUnlockedAchievementsByUserId(userId);
+    }
+
+    @Override
+    @Transactional
+    public void processUserVote(UUID userId) {
+        logger.info("Processing vote event for user: {}", userId);
+
+        YuanTransaction yuanTransaction = new YuanTransaction();
+        yuanTransaction.setUserId(userId);
+        yuanTransaction.setAmount(-1.0);
+        yuanTransaction.setDescription("Voted on a novel");
+        yuanTransactionMapper.insert(yuanTransaction);
+
+        logger.info("Deducted 1 Yuan from user {} for voting.", userId);
+    }
+
+    private void checkLevelUpAndPublishEvent(UUID userId, Double expGained) {
+        Double currentTotalExp = expTransactionMapper.sumAmountByUserId(userId);
+        if (currentTotalExp == null) currentTotalExp = 0.0;
+
+        int currentLevel = levelService.calculateLevel(currentTotalExp);
+
+        Double previousTotalExp = currentTotalExp - expGained;
+        int previousLevel = levelService.calculateLevel(previousTotalExp);
+
+        if (currentLevel > previousLevel) {
+            logger.info("User {} leveled up from {} to {}!", userId, previousLevel, currentLevel);
+            LevelUpEvent event = new LevelUpEvent(userId, currentLevel);
+            kafkaTemplate.send(INTERNAL_EVENTS_TOPIC, event);
+            logger.info("Published LevelUpEvent to topic '{}'", INTERNAL_EVENTS_TOPIC);
+        }
+    }
+
+    @Override
+    public PagedResponse<AdminYuanTransactionDTO> findYuanTransactionsForAdmin(
+            UUID userId,
+            OffsetDateTime startDate,
+            OffsetDateTime endDate,
+            int page,
+            int size
+    ) {
+        int offset = page * size;
+
+        List<YuanTransaction> transactions = yuanTransactionMapper.findWithFilters(userId, startDate, endDate, offset, size);
+
+        List<AdminYuanTransactionDTO> dtos = transactions.stream().map(transaction -> {
+            AdminYuanTransactionDTO dto = new AdminYuanTransactionDTO();
+            dto.setId(transaction.getId());
+            dto.setUserId(transaction.getUserId());
+            dto.setAmount(transaction.getAmount());
+            dto.setDescription(transaction.getDescription());
+            dto.setCreatedAt(transaction.getCreatedAt());
+            return dto;
+        }).collect(Collectors.toList());
+
+        long totalElements = yuanTransactionMapper.countWithFilters(userId, startDate, endDate);
+
+        return new PagedResponse<>(dtos, page, size, totalElements);
     }
 }

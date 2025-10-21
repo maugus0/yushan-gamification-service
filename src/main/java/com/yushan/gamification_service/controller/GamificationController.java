@@ -18,11 +18,11 @@ public class GamificationController {
         this.gamificationService = gamificationService;
     }
 
-    @PostMapping("/events/login")
-    public ResponseEntity<ApiResponse<Void>> handleUserLogin(@RequestBody UserLoginRequestDTO requestDTO) {
-        UUID userId = requestDTO.getUserId();
-        gamificationService.processUserLogin(userId);
-        return ResponseEntity.ok(ApiResponse.success("Login event processed successfully for user " + userId));
-    }
+//    @PostMapping("/events/login")
+//    public ResponseEntity<ApiResponse<Void>> handleUserLogin(@RequestBody UserLoginRequestDTO requestDTO) {
+//        UUID userId = requestDTO.getUserId();
+//        gamificationService.processUserLogin(userId);
+//        return ResponseEntity.ok(ApiResponse.success("Login event processed successfully for user " + userId));
+//    }
 
 }
