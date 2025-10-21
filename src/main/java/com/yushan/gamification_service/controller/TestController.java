@@ -2,10 +2,10 @@ package com.yushan.gamification_service.controller;
 
 import com.yushan.gamification_service.dto.common.ApiResponse;
 import com.yushan.gamification_service.util.JwtTestUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,8 +14,10 @@ import java.util.Map;
  * Test Controller for generating JWT tokens
  * This is only for development/testing purposes
  */
+@Tag(name = "Test Utilities", description = "Test APIs for generating JWT tokens (Development only)")
 @RestController
 @RequestMapping("/api/test")
+@CrossOrigin(origins = "*")
 public class TestController {
 
     @Autowired
@@ -24,6 +26,7 @@ public class TestController {
     /**
      * Generate test JWT token for USER role
      */
+    @Operation(summary = "[TEST] Generate USER token", description = "Generate test JWT token for USER role (Development only)")
     @GetMapping("/token/user")
     public ApiResponse<Map<String, String>> getUserToken() {
         Map<String, String> tokenData = new HashMap<>();
@@ -36,6 +39,7 @@ public class TestController {
     /**
      * Generate test JWT token for ADMIN role
      */
+    @Operation(summary = "[TEST] Generate ADMIN token", description = "Generate test JWT token for ADMIN role (Development only)")
     @GetMapping("/token/admin")
     public ApiResponse<Map<String, String>> getAdminToken() {
         Map<String, String> tokenData = new HashMap<>();
@@ -48,6 +52,7 @@ public class TestController {
     /**
      * Generate test JWT token for suspended user
      */
+    @Operation(summary = "[TEST] Generate SUSPENDED token", description = "Generate test JWT token for suspended user (Development only)")
     @GetMapping("/token/suspended")
     public ApiResponse<Map<String, String>> getSuspendedToken() {
         Map<String, String> tokenData = new HashMap<>();

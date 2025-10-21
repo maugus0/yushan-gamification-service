@@ -2,7 +2,7 @@ package com.yushan.gamification_service.listener;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yushan.gamification_service.service.WelcomeRewardService;
+import com.yushan.gamification_service.service.GamificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,7 @@ public class UserEventListener {
     private static final Logger log = LoggerFactory.getLogger(UserEventListener.class);
 
     @Autowired
-    private WelcomeRewardService welcomeRewardService;
+    private GamificationService gamificationService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -36,7 +36,7 @@ public class UserEventListener {
             UUID userId = UUID.fromString(userIdStr);
             log.info("Successfully parsed UserRegisteredEvent for userId: {}", userId);
 
-            welcomeRewardService.grantNewUserReward(userId);
+            gamificationService.processUserLogin(userId);
 
             log.info("Welcome reward processing initiated for userId: {}", userId);
 
