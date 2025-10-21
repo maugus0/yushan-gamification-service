@@ -1,9 +1,9 @@
 package com.yushan.gamification_service.controller;
 
-import com.yushan.gamification_service.dto.AchievementDTO;
-import com.yushan.gamification_service.dto.ApiResponse;
-import com.yushan.gamification_service.dto.GamificationStatsDTO;
-import com.yushan.gamification_service.dto.YuanTransactionDTO;
+import com.yushan.gamification_service.dto.achievement.AchievementDTO;
+import com.yushan.gamification_service.dto.common.ApiResponse;
+import com.yushan.gamification_service.dto.stats.GamificationStatsDTO;
+import com.yushan.gamification_service.dto.transaction.YuanTransactionDTO;
 import com.yushan.gamification_service.service.GamificationService;
 import com.yushan.gamification_service.util.SecurityUtils;
 import org.springframework.http.ResponseEntity;

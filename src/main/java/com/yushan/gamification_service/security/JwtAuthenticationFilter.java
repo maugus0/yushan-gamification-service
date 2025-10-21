@@ -5,78 +5,104 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+/**
+ * JWT Authentication Filter
+ * 
+ * This filter runs before every request and:
+ * 1. Extracts JWT token from Authorization header
+ * 2. Validates the token
+ * 3. Extracts user information from token
+ * 4. Sets authentication in SecurityContext
+ */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
-    private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     @Autowired
     private JwtUtil jwtUtil;
 
+    /**
+     * Filter method that processes each request
+     * 
+     * @param request HTTP request
+     * @param response HTTP response
+     * @param filterChain Filter chain
+     * @throws ServletException if servlet error occurs
+     * @throws IOException if I/O error occurs
+     */
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request,
-                                    @NonNull HttpServletResponse response,
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, 
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
-
+        
         try {
-            String jwt = getJwtFromRequest(request);
-
-            if (StringUtils.hasText(jwt) && jwtUtil.validateToken(jwt) && SecurityContextHolder.getContext().getAuthentication() == null) {
-
-                logger.info("Token is valid, constructing user details...");
-
-                String userId = jwtUtil.extractUserId(jwt);
-                String email = jwtUtil.extractEmail(jwt);
-                String role = jwtUtil.extractRole(jwt);
-                Integer status = jwtUtil.extractStatus(jwt);
-
-                UserDetails userDetails = new CustomUserDetails(userId, email, role, status);
-
-                if (userDetails.isEnabled()) {
-                    logger.info("✓ UserDetails created with authorities: {}", userDetails.getAuthorities());
-
-                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities());
-
-                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
+            // 1. Extract token from Authorization header
+            String token = extractTokenFromRequest(request);
+            
+            if (token != null && jwtUtil.validateToken(token) && jwtUtil.isAccessToken(token)) {
+                // 2. Extract user information from token
+                String userId = jwtUtil.extractUserId(token);
+                String email = jwtUtil.extractEmail(token);
+                String username = jwtUtil.extractUsername(token);
+                String role = jwtUtil.extractRole(token);
+                Integer status = jwtUtil.extractStatus(token);
+                
+                // 3. Check if user is not already authenticated
+                if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    // 4. Create CustomUserDetails from JWT claims
+                    CustomUserDetails userDetails = new CustomUserDetails(userId, email, username, role, status);
+                    
+                    // 4.5. Check if user is enabled (not suspended/banned)
+                    if (!userDetails.isEnabled()) {
+                        // User is disabled, don't authenticate
+                        filterChain.doFilter(request, response);
+                        return;
+                    }
+                    
+                    // 5. Create authentication object
+                    UsernamePasswordAuthenticationToken authentication = 
+                        new UsernamePasswordAuthenticationToken(
+                            userDetails, 
+                            null, 
+                            userDetails.getAuthorities()
+                        );
+                    
+                    // 6. Set additional details
+                    authentication.setDetails(
+                        new WebAuthenticationDetailsSource().buildDetails(request)
+                    );
+                    
+                    // 7. Set authentication in SecurityContext
                     SecurityContextHolder.getContext().setAuthentication(authentication);
-
-                    logger.info("✓✓✓ Authentication SUCCESS! User {} is now authenticated with role {}", userId, role);
-                } else {
-                    logger.warn("Authentication failed: User {} is disabled (status: {})", userId, status);
-                }
-
-            } else {
-                if (jwt != null) {
-                    logger.debug("Token validation failed or user already authenticated.");
                 }
             }
-        } catch (Exception ex) {
-            logger.error("✗✗✗ Exception during JWT authentication process", ex);
+        } catch (Exception e) {
+            // Log error but don't fail the request
+            logger.error("JWT authentication failed", e);
         }
-
+        
+        // Continue with the filter chain
         filterChain.doFilter(request, response);
     }
 
-    private String getJwtFromRequest(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
+    /**
+     * Extract JWT token from Authorization header
+     * 
+     * @param request HTTP request
+     * @return JWT token or null if not found
+     */
+    private String extractTokenFromRequest(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(7);
         }
         return null;
     }

@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  * Custom UserDetails implementation for JWT authentication
- * 
+ *
  * This class wraps JWT claims and implements UserDetails interface
  * for Spring Security integration
  */
@@ -19,12 +19,14 @@ public class CustomUserDetails implements UserDetails {
 
     private final String userId;
     private final String email;
+    private final String username;
     private final String role;
     private final Integer status;
 
     public CustomUserDetails(String userId, String email, String role) {
         this.userId = userId;
         this.email = email;
+        this.username = null; // Username not provided in old constructor
         this.role = role;
         this.status = 0; // Default to NORMAL status
     }
@@ -32,6 +34,15 @@ public class CustomUserDetails implements UserDetails {
     public CustomUserDetails(String userId, String email, String role, Integer status) {
         this.userId = userId;
         this.email = email;
+        this.username = null; // Username not provided in old constructor
+        this.role = role;
+        this.status = status;
+    }
+
+    public CustomUserDetails(String userId, String email, String username, String role, Integer status) {
+        this.userId = userId;
+        this.email = email;
+        this.username = username;
         this.role = role;
         this.status = status;
     }
@@ -39,15 +50,15 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> authorities = new ArrayList<>();
-        
+
         // Add basic user authority
         authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
-        
+
         // Add role-based authority
         if (role != null) {
             authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
         }
-        
+
         return authorities;
     }
 
@@ -84,7 +95,7 @@ public class CustomUserDetails implements UserDetails {
 
     /**
      * Get user ID
-     * 
+     *
      * @return User ID
      */
     public String getUserId() {
@@ -93,7 +104,7 @@ public class CustomUserDetails implements UserDetails {
 
     /**
      * Get user email
-     * 
+     *
      * @return User email
      */
     public String getEmail() {
@@ -101,8 +112,17 @@ public class CustomUserDetails implements UserDetails {
     }
 
     /**
+     * Get username
+     *
+     * @return Username, fallback to email if username is null
+     */
+    public String getDisplayUsername() {
+        return username != null ? username : email;
+    }
+
+    /**
      * Get user role
-     * 
+     *
      * @return User role
      */
     public String getRole() {
@@ -111,7 +131,7 @@ public class CustomUserDetails implements UserDetails {
 
     /**
      * Check if user is author
-     * 
+     *
      * @return true if user is author, false otherwise
      */
     public boolean isAuthor() {
@@ -120,7 +140,7 @@ public class CustomUserDetails implements UserDetails {
 
     /**
      * Check if user is admin
-     * 
+     *
      * @return true if user is admin, false otherwise
      */
     public boolean isAdmin() {
@@ -129,11 +149,10 @@ public class CustomUserDetails implements UserDetails {
 
     /**
      * Get user status
-     * 
+     *
      * @return User status (0 = NORMAL, 1 = SUSPENDED, etc.)
      */
     public Integer getStatus() {
         return status;
     }
-
 }

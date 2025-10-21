@@ -1,6 +1,6 @@
 package com.yushan.gamification_service.exception;
 
-import com.yushan.gamification_service.dto.ApiResponse;
+import com.yushan.gamification_service.dto.common.ApiResponse;
 import com.yushan.gamification_service.enums.ErrorCode;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,17 +11,21 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
-//@RestControllerAdvice
+/**
+ * Global exception handler for the gamification service.
+ * Handles common exceptions and provides appropriate HTTP responses.
+ */
+@RestControllerAdvice
 public class GlobalExceptionHandler {
-
+    
     /**
      * handle authorization denied exception
      */
     @ExceptionHandler(AuthorizationDeniedException.class)
     public ResponseEntity<ApiResponse<Object>> handleAuthorizationDeniedException(WebRequest request) {
         ApiResponse<Object> errorResponse = ApiResponse.error(
-                ErrorCode.UNAUTHORIZED,
-                "Access denied"
+            ErrorCode.UNAUTHORIZED, 
+            "Access denied"
         );
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
     }
@@ -32,8 +36,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponse<Object>> handleResourceNotFoundException(ResourceNotFoundException e, WebRequest request) {
         ApiResponse<Object> errorResponse = ApiResponse.error(
-                ErrorCode.NOT_FOUND,
-                e.getMessage()
+            ErrorCode.NOT_FOUND, 
+            e.getMessage()
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
@@ -41,8 +45,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<ApiResponse<Object>> handleValidationException(ValidationException e, WebRequest request) {
         ApiResponse<Object> errorResponse = ApiResponse.error(
-                ErrorCode.VALIDATION_ERROR,
-                e.getMessage()
+            ErrorCode.BAD_REQUEST, 
+            e.getMessage()
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
@@ -50,8 +54,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<ApiResponse<Object>> handleUnauthorizedException(UnauthorizedException e, WebRequest request) {
         ApiResponse<Object> errorResponse = ApiResponse.error(
-                ErrorCode.UNAUTHORIZED,
-                e.getMessage()
+            ErrorCode.UNAUTHORIZED, 
+            e.getMessage()
         );
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
     }
@@ -59,8 +63,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ForbiddenException.class)
     public ResponseEntity<ApiResponse<Object>> handleForbiddenException(ForbiddenException e, WebRequest request) {
         ApiResponse<Object> errorResponse = ApiResponse.error(
-                ErrorCode.FORBIDDEN,
-                e.getMessage()
+            ErrorCode.FORBIDDEN, 
+            e.getMessage()
         );
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
     }
@@ -77,10 +81,10 @@ public class GlobalExceptionHandler {
             }
             errorMessage.append(error.getDefaultMessage());
         });
-
+        
         ApiResponse<Object> errorResponse = ApiResponse.error(
-                ErrorCode.VALIDATION_ERROR,
-                errorMessage.toString()
+            ErrorCode.BAD_REQUEST, 
+            errorMessage.toString()
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
@@ -97,12 +101,24 @@ public class GlobalExceptionHandler {
             }
             errorMessage.append(error.getDefaultMessage());
         });
-
+        
         ApiResponse<Object> errorResponse = ApiResponse.error(
-                ErrorCode.VALIDATION_ERROR,
-                errorMessage.toString()
+            ErrorCode.BAD_REQUEST, 
+            errorMessage.toString()
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    /**
+     * Handle illegal argument exceptions
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiResponse<Object>> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
+        ApiResponse<Object> errorResponse = ApiResponse.error(
+            ErrorCode.BAD_REQUEST,
+            ex.getMessage()
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
 
     /**
@@ -111,8 +127,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Object>> handleException(Exception e, WebRequest request) {
         ApiResponse<Object> errorResponse = ApiResponse.error(
-                ErrorCode.INTERNAL_SERVER_ERROR,
-                "System error: " + e.getMessage()
+            ErrorCode.INTERNAL_SERVER_ERROR, 
+            "System error: " + e.getMessage()
         );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }

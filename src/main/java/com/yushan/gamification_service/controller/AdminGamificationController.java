@@ -1,8 +1,8 @@
-package com.yushan.gamification_service.controller.admin;
+package com.yushan.gamification_service.controller;
 
-import com.yushan.gamification_service.dto.ApiResponse;
-import com.yushan.gamification_service.dto.PagedResponse;
-import com.yushan.gamification_service.dto.admin.AdminYuanTransactionDTO;
+import com.yushan.gamification_service.dto.common.ApiResponse;
+import com.yushan.gamification_service.dto.common.PageResponseDTO;
+import com.yushan.gamification_service.dto.transaction.AdminYuanTransactionDTO;
 import com.yushan.gamification_service.service.GamificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -24,14 +24,14 @@ public class AdminGamificationController {
 
     @GetMapping("/yuan/transactions")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public ResponseEntity<ApiResponse<PagedResponse<AdminYuanTransactionDTO>>> getYuanTransactions(
+    public ResponseEntity<ApiResponse<PageResponseDTO<AdminYuanTransactionDTO>>> getYuanTransactions(
             @RequestParam(required = false) UUID userId,
             @RequestParam(required = false) OffsetDateTime startDate,
             @RequestParam(required = false) OffsetDateTime endDate,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size
     ) {
-        PagedResponse<AdminYuanTransactionDTO> pagedResponse = gamificationService.findYuanTransactionsForAdmin(
+        PageResponseDTO<AdminYuanTransactionDTO> pagedResponse = gamificationService.findYuanTransactionsForAdmin(
                 userId, startDate, endDate, page, size
         );
 

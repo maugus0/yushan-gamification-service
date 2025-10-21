@@ -22,51 +22,77 @@ public class EngagementEventListener {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @KafkaListener(topics = {"comment-events", "review-events", "vote-events"}, groupId = "gamification-service")
-    public void handleEngagementEvents(String message) {
+    @KafkaListener(topics = "comment-events", groupId = "gamification-service")
+    public void handleCommentCreatedEvent(String message) {
         try {
             JsonNode rootNode = objectMapper.readTree(message);
             String eventType = rootNode.path("eventType").asText();
             String userIdStr = rootNode.path("userId").asText(null);
 
-            if (userIdStr == null || eventType == null || eventType.isEmpty()) {
-                log.warn("Received an engagement event with missing userId or eventType. Ignoring: {}", message);
+            if (!"COMMENT_CREATED".equals(eventType) || userIdStr == null) {
+                log.warn("Received invalid COMMENT_CREATED event. Ignoring: {}", message);
                 return;
             }
 
             UUID userId = UUID.fromString(userIdStr);
-            log.info("Received engagement event: {} for user: {}", eventType, userId);
-
-
-            switch (eventType) {
-                case "COMMENT_CREATED":
-                    long commentId = rootNode.path("commentId").asLong(0);
-                    if (commentId > 0) {
-                        gamificationService.processUserComment(userId, commentId);
-                    } else {
-                        log.warn("COMMENT_CREATED event missing valid commentId: {}", message);
-                    }
-                    break;
-
-                case "REVIEW_CREATED":
-                    long reviewId = rootNode.path("reviewId").asLong(0);
-                    if (reviewId > 0) {
-                        gamificationService.processUserReview(userId, reviewId);
-                    } else {
-                        log.warn("REVIEW_CREATED event missing valid reviewId: {}", message);
-                    }
-                    break;
-
-                case "VOTE_CREATED":
-                    gamificationService.processUserVote(userId);
-                    break;
-
-                default:
-                    log.warn("Unknown engagement event type received: {}", eventType);
-                    break;
+            Integer commentId = rootNode.path("commentId").asInt(0);
+            
+            if (commentId <= 0) {
+                log.warn("COMMENT_CREATED event missing valid commentId: {}", message);
+                return;
             }
+
+            log.info("Received COMMENT_CREATED event for user: {}, commentId: {}", userId, commentId);
+            gamificationService.processUserComment(userId, commentId.longValue());
         } catch (Exception e) {
-            log.error("Failed to process engagement event: {}", message, e);
+            log.error("Failed to process COMMENT_CREATED event: {}", message, e);
+        }
+    }
+
+    @KafkaListener(topics = "review-events", groupId = "gamification-service")
+    public void handleReviewCreatedEvent(String message) {
+        try {
+            JsonNode rootNode = objectMapper.readTree(message);
+            String eventType = rootNode.path("eventType").asText();
+            String userIdStr = rootNode.path("userId").asText(null);
+
+            if (!"REVIEW_CREATED".equals(eventType) || userIdStr == null) {
+                log.warn("Received invalid REVIEW_CREATED event. Ignoring: {}", message);
+                return;
+            }
+
+            UUID userId = UUID.fromString(userIdStr);
+            Integer reviewId = rootNode.path("reviewId").asInt(0);
+            
+            if (reviewId <= 0) {
+                log.warn("REVIEW_CREATED event missing valid reviewId: {}", message);
+                return;
+            }
+
+            log.info("Received REVIEW_CREATED event for user: {}, reviewId: {}", userId, reviewId);
+            gamificationService.processUserReview(userId, reviewId.longValue());
+        } catch (Exception e) {
+            log.error("Failed to process REVIEW_CREATED event: {}", message, e);
+        }
+    }
+
+    @KafkaListener(topics = "vote-events", groupId = "gamification-service")
+    public void handleVoteCreatedEvent(String message) {
+        try {
+            JsonNode rootNode = objectMapper.readTree(message);
+            String eventType = rootNode.path("eventType").asText();
+            String userIdStr = rootNode.path("userId").asText(null);
+
+            if (!"VOTE_CREATED".equals(eventType) || userIdStr == null) {
+                log.warn("Received invalid VOTE_CREATED event. Ignoring: {}", message);
+                return;
+            }
+
+            UUID userId = UUID.fromString(userIdStr);
+            log.info("Received VOTE_CREATED event for user: {}", userId);
+            gamificationService.processUserVote(userId);
+        } catch (Exception e) {
+            log.error("Failed to process VOTE_CREATED event: {}", message, e);
         }
     }
 }

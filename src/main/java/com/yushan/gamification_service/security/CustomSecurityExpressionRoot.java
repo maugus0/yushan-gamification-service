@@ -87,7 +87,7 @@ public class CustomSecurityExpressionRoot extends SecurityExpressionRoot impleme
 
     /**
      * Get current user from User Service
-     * @return CustomUserDetails or null if not authenticated
+     * @return UserValidationResponseDTO or null if not authenticated
      */
     private CustomUserDetails getCurrentUser() {
         try {

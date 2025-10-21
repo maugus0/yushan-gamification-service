@@ -1,35 +1,42 @@
 package com.yushan.gamification_service.config;
 
-import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.security.SecurityRequirement;
-import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
+import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Configure OpenAPI so that generated server URL is relative ("/")
+ * which lets Swagger UI use the current request scheme/host.
+ * This avoids mixed-content issues when running behind a proxy (e.g. Railway)
+ * that terminates TLS and forwards as HTTP to the container.
+ */
 @Configuration
 public class OpenApiConfig {
+    public static final String SECURITY_SCHEME_NAME = "BearerAuth";
+
+    // OpenAPI annotations for security and basic info
+    @io.swagger.v3.oas.annotations.OpenAPIDefinition(
+        info = @io.swagger.v3.oas.annotations.info.Info(title = "Gamification Service API", version = "v1"),
+        security = {@io.swagger.v3.oas.annotations.security.SecurityRequirement(name = SECURITY_SCHEME_NAME)}
+    )
+    @io.swagger.v3.oas.annotations.security.SecurityScheme(
+        name = SECURITY_SCHEME_NAME,
+        type = io.swagger.v3.oas.annotations.enums.SecuritySchemeType.HTTP,
+        scheme = "bearer",
+        bearerFormat = "JWT",
+        in = io.swagger.v3.oas.annotations.enums.SecuritySchemeIn.HEADER
+    )
+    static class AnnotationsHolder { }
 
     @Bean
     public OpenAPI customOpenAPI() {
-        final String securitySchemeName = "Bearer Authentication";
-
-        return new OpenAPI()
-                .info(new Info()
-                        .title("Gamification Service API")
-                        .version("1.0")
-                        .description("gamification"))
-                .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
-                .components(new Components()
-                        .addSecuritySchemes(securitySchemeName,
-                                new SecurityScheme()
-                                        .name(securitySchemeName)
-                                        .type(SecurityScheme.Type.HTTP)
-                                        .scheme("bearer")
-                                        .bearerFormat("JWT")
-                                        .description("JWT Token（Bearer <token>）")
-                        )
-                );
+        OpenAPI openAPI = new OpenAPI();
+        openAPI.setInfo(new Info().title("Gamification Service API").version("v1"));
+        // Use relative server so Swagger UI requests keep the browser's https scheme
+        openAPI.setServers(List.of(new Server().url("/")));
+        return openAPI;
     }
 }

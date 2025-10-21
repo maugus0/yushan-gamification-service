@@ -1,4 +1,4 @@
-package com.yushan.gamification_service.dto;
+package com.yushan.gamification_service.dto.user;
 
 import java.util.UUID;
 

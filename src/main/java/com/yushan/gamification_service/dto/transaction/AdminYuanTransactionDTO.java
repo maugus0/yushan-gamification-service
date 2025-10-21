@@ -1,4 +1,4 @@
-package com.yushan.gamification_service.dto.admin;
+package com.yushan.gamification_service.dto.transaction;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;

@@ -1,12 +1,8 @@
 package com.yushan.gamification_service.controller;
 
-import com.yushan.gamification_service.dto.ApiResponse;
-import com.yushan.gamification_service.dto.UserLoginRequestDTO;
 import com.yushan.gamification_service.service.GamificationService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/internal/gamification")

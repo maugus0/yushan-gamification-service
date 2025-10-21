@@ -1,6 +1,6 @@
 package com.yushan.gamification_service.dao;
 
-import com.yushan.gamification_service.dto.AchievementDTO;
+import com.yushan.gamification_service.dto.achievement.AchievementDTO;
 import com.yushan.gamification_service.entity.UserAchievement;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;

@@ -1,7 +1,6 @@
-package com.yushan.gamification_service.dto;
+package com.yushan.gamification_service.dto.transaction;
 
 import java.time.OffsetDateTime;
-import java.util.UUID;
 
 public class YuanTransactionDTO {
     private Double amount;

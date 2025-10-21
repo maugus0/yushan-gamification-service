@@ -30,7 +30,7 @@
         LIMIT 1
     </select>
 
-    <resultMap id="AchievementDTOMap" type="com.yushan.gamification_service.dto.AchievementDTO">
+    <resultMap id="AchievementDTOMap" type="com.yushan.gamification_service.dto.achievement.AchievementDTO">
         <result property="id" column="achievement_id"/>
         <result property="name" column="name"/>
         <result property="description" column="description"/>

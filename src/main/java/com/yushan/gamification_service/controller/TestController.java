@@ -1,6 +1,6 @@
 package com.yushan.gamification_service.controller;
 
-import com.yushan.gamification_service.dto.ApiResponse;
+import com.yushan.gamification_service.dto.common.ApiResponse;
 import com.yushan.gamification_service.util.JwtTestUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;

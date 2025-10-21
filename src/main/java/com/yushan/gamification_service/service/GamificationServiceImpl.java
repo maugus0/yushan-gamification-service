@@ -4,9 +4,9 @@ import com.yushan.gamification_service.dao.DailyRewardLogMapper;
 import com.yushan.gamification_service.dao.ExpTransactionMapper;
 import com.yushan.gamification_service.dao.YuanTransactionMapper;
 import com.yushan.gamification_service.dao.UserAchievementMapper;
-import com.yushan.gamification_service.dto.AchievementDTO;
-import com.yushan.gamification_service.dto.GamificationStatsDTO;
-import com.yushan.gamification_service.dto.YuanTransactionDTO;
+import com.yushan.gamification_service.dto.achievement.AchievementDTO;
+import com.yushan.gamification_service.dto.stats.GamificationStatsDTO;
+import com.yushan.gamification_service.dto.transaction.YuanTransactionDTO;
 import com.yushan.gamification_service.entity.DailyRewardLog;
 import com.yushan.gamification_service.entity.ExpTransaction;
 import com.yushan.gamification_service.entity.YuanTransaction;
@@ -18,8 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.yushan.gamification_service.dto.PagedResponse;
-import com.yushan.gamification_service.dto.admin.AdminYuanTransactionDTO;
+import com.yushan.gamification_service.dto.common.PageResponseDTO;
+import com.yushan.gamification_service.dto.transaction.AdminYuanTransactionDTO;
 import java.time.OffsetDateTime;
 
 import java.time.LocalDate;
@@ -260,7 +260,7 @@ public class GamificationServiceImpl implements GamificationService {
     }
 
     @Override
-    public PagedResponse<AdminYuanTransactionDTO> findYuanTransactionsForAdmin(
+    public PageResponseDTO<AdminYuanTransactionDTO> findYuanTransactionsForAdmin(
             UUID userId,
             OffsetDateTime startDate,
             OffsetDateTime endDate,
@@ -283,6 +283,6 @@ public class GamificationServiceImpl implements GamificationService {
 
         long totalElements = yuanTransactionMapper.countWithFilters(userId, startDate, endDate);
 
-        return new PagedResponse<>(dtos, page, size, totalElements);
+        return new PageResponseDTO<>(dtos, totalElements, page, size);
     }
 }

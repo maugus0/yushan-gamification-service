@@ -69,6 +69,20 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      client-id: gamification-service
+      retries: 3
+      batch-size: 16384
+      linger-ms: 5
+      buffer-memory: 33554432
+      acks: all
+      enable-idempotence: true
+      compression-type: snappy
+      request-timeout-ms: 30000
+      delivery-timeout-ms: 120000
+      topic:
+        achievement-events: achievement-events
+        level-up-events: level-up-events
+        reward-events: reward-events
 
 # Server Configuration
 server:
@@ -125,8 +139,9 @@ logging:
 
 # JWT Configuration
 jwt:
-  secret: "yushan-gamification-service-secret-key-for-jwt-token-generation-and-validation-2024"
-  issuer: "yushan-gamification-service"
+  secret: "yushan-micro-service-secret-key-for-jwt-token-generation-and-validation-2024"
+  issuer: "yushan-micro-service"
+  algorithm: "HS256"
 
 gamification:
   rewards:

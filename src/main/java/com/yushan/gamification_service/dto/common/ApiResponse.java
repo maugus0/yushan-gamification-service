@@ -1,4 +1,4 @@
-package com.yushan.gamification_service.dto;
+package com.yushan.gamification_service.dto.common;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.yushan.gamification_service.enums.ErrorCode;

@@ -1,4 +1,4 @@
-package com.yushan.gamification_service.dto;
+package com.yushan.gamification_service.dto.achievement;
 
 import java.time.OffsetDateTime;
 
