@@ -19,7 +19,7 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title("Gamification Service API")
                         .version("1.0")
-                        .description("游戏化服务API文档"))
+                        .description("gamification"))
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
                 .components(new Components()
                         .addSecuritySchemes(securitySchemeName,
@@ -28,7 +28,7 @@ public class OpenApiConfig {
                                         .type(SecurityScheme.Type.HTTP)
                                         .scheme("bearer")
                                         .bearerFormat("JWT")
-                                        .description("请输入JWT Token（格式：Bearer <token>）")
+                                        .description("JWT Token（Bearer <token>）")
                         )
                 );
     }
