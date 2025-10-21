@@ -87,7 +87,6 @@ public class KafkaConfig {
         
         // Disable type information to avoid class not found errors
         configProps.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, false);
-        configProps.put(JsonDeserializer.VALUE_DEFAULT_TYPE, "java.lang.String");
         
         return new DefaultKafkaConsumerFactory<>(configProps);
     }

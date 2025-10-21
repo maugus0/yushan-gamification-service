@@ -1,98 +1,76 @@
 package com.yushan.gamification_service.listener;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yushan.gamification_service.service.GamificationService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
-import java.util.UUID;
-
+@Slf4j
 @Component
 public class EngagementEventListener {
 
-    private static final Logger log = LoggerFactory.getLogger(EngagementEventListener.class);
-
     @Autowired
     private GamificationService gamificationService;
-
+    
     @Autowired
     private ObjectMapper objectMapper;
 
+    /**
+     * Consume CommentCreatedEvent from engagement service
+     */
     @KafkaListener(topics = "comment-events", groupId = "gamification-service")
-    public void handleCommentCreatedEvent(String message) {
+    public void handleCommentCreatedEvent(@Payload String eventJson) {
         try {
-            JsonNode rootNode = objectMapper.readTree(message);
-            String eventType = rootNode.path("eventType").asText();
-            String userIdStr = rootNode.path("userId").asText(null);
-
-            if (!"COMMENT_CREATED".equals(eventType) || userIdStr == null) {
-                log.warn("Received invalid COMMENT_CREATED event. Ignoring: {}", message);
-                return;
-            }
-
-            UUID userId = UUID.fromString(userIdStr);
-            Integer commentId = rootNode.path("commentId").asInt(0);
+            // Parse JSON to extract commentId and userId
+            com.fasterxml.jackson.databind.JsonNode jsonNode = objectMapper.readTree(eventJson);
+            Integer commentId = jsonNode.get("commentId").asInt();
+            String userIdStr = jsonNode.get("userId").asText();
+            java.util.UUID userId = java.util.UUID.fromString(userIdStr);
             
-            if (commentId <= 0) {
-                log.warn("COMMENT_CREATED event missing valid commentId: {}", message);
-                return;
-            }
-
-            log.info("Received COMMENT_CREATED event for user: {}, commentId: {}", userId, commentId);
+            // Process comment reward
             gamificationService.processUserComment(userId, commentId.longValue());
         } catch (Exception e) {
-            log.error("Failed to process COMMENT_CREATED event: {}", message, e);
+            System.out.println("Error processing CommentCreatedEvent: " + e.getMessage());
         }
     }
 
+    /**
+     * Consume ReviewCreatedEvent from engagement service
+     */
     @KafkaListener(topics = "review-events", groupId = "gamification-service")
-    public void handleReviewCreatedEvent(String message) {
+    public void handleReviewCreatedEvent(@Payload String eventJson) {
         try {
-            JsonNode rootNode = objectMapper.readTree(message);
-            String eventType = rootNode.path("eventType").asText();
-            String userIdStr = rootNode.path("userId").asText(null);
-
-            if (!"REVIEW_CREATED".equals(eventType) || userIdStr == null) {
-                log.warn("Received invalid REVIEW_CREATED event. Ignoring: {}", message);
-                return;
-            }
-
-            UUID userId = UUID.fromString(userIdStr);
-            Integer reviewId = rootNode.path("reviewId").asInt(0);
+            // Parse JSON to extract reviewId and userId
+            com.fasterxml.jackson.databind.JsonNode jsonNode = objectMapper.readTree(eventJson);
+            Integer reviewId = jsonNode.get("reviewId").asInt();
+            String userIdStr = jsonNode.get("userId").asText();
+            java.util.UUID userId = java.util.UUID.fromString(userIdStr);
             
-            if (reviewId <= 0) {
-                log.warn("REVIEW_CREATED event missing valid reviewId: {}", message);
-                return;
-            }
-
-            log.info("Received REVIEW_CREATED event for user: {}, reviewId: {}", userId, reviewId);
+            // Process review reward
             gamificationService.processUserReview(userId, reviewId.longValue());
         } catch (Exception e) {
-            log.error("Failed to process REVIEW_CREATED event: {}", message, e);
+            System.out.println("Error processing ReviewCreatedEvent: " + e.getMessage());
         }
     }
 
+    /**
+     * Consume VoteCreatedEvent from engagement service
+     */
     @KafkaListener(topics = "vote-events", groupId = "gamification-service")
-    public void handleVoteCreatedEvent(String message) {
+    public void handleVoteCreatedEvent(@Payload String eventJson) {
         try {
-            JsonNode rootNode = objectMapper.readTree(message);
-            String eventType = rootNode.path("eventType").asText();
-            String userIdStr = rootNode.path("userId").asText(null);
-
-            if (!"VOTE_CREATED".equals(eventType) || userIdStr == null) {
-                log.warn("Received invalid VOTE_CREATED event. Ignoring: {}", message);
-                return;
-            }
-
-            UUID userId = UUID.fromString(userIdStr);
-            log.info("Received VOTE_CREATED event for user: {}", userId);
+            // Parse JSON to extract voteId and userId
+            com.fasterxml.jackson.databind.JsonNode jsonNode = objectMapper.readTree(eventJson);
+            String userIdStr = jsonNode.get("userId").asText();
+            java.util.UUID userId = java.util.UUID.fromString(userIdStr);
+            
+            // Process vote reward (EXP only, Yuan deduction is handled separately)
             gamificationService.processUserVote(userId);
         } catch (Exception e) {
-            log.error("Failed to process VOTE_CREATED event: {}", message, e);
+            System.out.println("Error processing VoteCreatedEvent: " + e.getMessage());
         }
     }
 }
