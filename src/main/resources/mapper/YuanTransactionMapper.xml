@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yushan.gamification_service.dao.YuanTransactionMapper">
+
+    <insert id="insert" parameterType="com.yushan.gamification_service.entity.YuanTransaction" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO yuan_transactions (user_id, amount, description, created_at)
+        VALUES (#{userId}, #{amount}, #{description}, NOW())
+    </insert>
+
+    <select id="sumAmountByUserId" resultType="double">
+        SELECT COALESCE(SUM(amount), 0.0)
+        FROM yuan_transactions
+        WHERE user_id = #{userId}
+    </select>
+
+    <select id="findByUserIdPaged" resultType="com.yushan.gamification_service.entity.YuanTransaction">
+        SELECT
+            amount,
+            description,
+            created_at AS createdAt
+        FROM
+            yuan_transactions
+        WHERE
+            user_id = #{userId}
+        ORDER BY
+            created_at DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countByUserId" resultType="int">
+        SELECT COUNT(id) FROM yuan_transactions WHERE user_id = #{userId}
+    </select>
+
+    <select id="findWithFilters" resultType="com.yushan.gamification_service.entity.YuanTransaction">
+        SELECT
+        id,
+        user_id AS userId,
+        amount,
+        description,
+        created_at AS createdAt
+        FROM
+        yuan_transactions
+        <where>
+            <if test="userId != null">
+                AND user_id = #{userId}
+            </if>
+            <if test="startDate != null">
+                AND created_at &gt;= #{startDate}
+            </if>
+            <if test="endDate != null">
+                AND created_at &lt;= #{endDate}
+            </if>
+        </where>
+        ORDER BY
+        created_at DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countWithFilters" resultType="long">
+        SELECT COUNT(id)
+        FROM yuan_transactions
+        <where>
+            <if test="userId != null">
+                AND user_id = #{userId}
+            </if>
+            <if test="startDate != null">
+                AND created_at &gt;= #{startDate}
+            </if>
+            <if test="endDate != null">
+                AND created_at &lt;= #{endDate}
+            </if>
+        </where>
+    </select>
+</mapper>

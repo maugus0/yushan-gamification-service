@@ -2,8 +2,16 @@ spring:
   application:
     name: gamification-service
 
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
+    default-property-inclusion: non_null
+    time-zone: Asia/Singapore
+
   datasource:
-    url: jdbc:postgresql://localhost:5432/yushan_gamification
+    url: jdbc:postgresql://localhost:5434/yushan_gamification
     username: yushan_gamification
     password: change_me_in_production
     driver-class-name: org.postgresql.Driver
@@ -31,7 +39,7 @@ spring:
 
   # MyBatis Configuration
   mybatis:
-    mapper-locations: classpath:/mapper/**Mapper.xml
+    mapper-locations: classpath:mapper/*.xml
     type-aliases-package: com.yushan.gamification_service.entity
     config-location: classpath:config/mybatis-config.xml
 
@@ -61,6 +69,20 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      client-id: gamification-service
+      retries: 3
+      batch-size: 16384
+      linger-ms: 5
+      buffer-memory: 33554432
+      acks: all
+      enable-idempotence: true
+      compression-type: snappy
+      request-timeout-ms: 30000
+      delivery-timeout-ms: 120000
+      topic:
+        achievement-events: achievement-events
+        level-up-events: level-up-events
+        reward-events: reward-events
 
 # Server Configuration
 server:
@@ -107,6 +129,24 @@ logging:
     org.springframework.cloud: INFO
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    com.yushan.gamification_service.security: DEBUG
+    org.springframework.security: DEBUG
+    com.yushan.gamification_service.util.JwtUtil: DEBUG
+
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# JWT Configuration
+jwt:
+  secret: "yushan-micro-service-secret-key-for-jwt-token-generation-and-validation-2024"
+  issuer: "yushan-micro-service"
+  algorithm: "HS256"
+
+gamification:
+  rewards:
+    daily-login-exp: 5
+    daily-login-yuan: 1
+    comment-exp: 5
+    review-exp: 5
+

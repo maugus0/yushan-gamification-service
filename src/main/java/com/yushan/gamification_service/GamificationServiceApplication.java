@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
@@ -12,6 +13,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableFeignClients       // Enable Feign clients for inter-service calls
 @EnableCaching            // Enable caching
 @EnableScheduling         // Enable scheduled tasks (for ranking calculations)
+@EnableKafka             // Enable Kafka listeners
 public class GamificationServiceApplication {
 
 	public static void main(String[] args) {
