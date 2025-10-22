@@ -3,7 +3,7 @@ package com.yushan.gamification_service.dto.event;
 import java.util.Date;
 import java.util.UUID;
 
-public record UserRegisteredEvent(
+public record UserLoggedInEvent(
         UUID uuid,
         String username,
         String email,
@@ -12,7 +12,7 @@ public record UserRegisteredEvent(
         Date lastLoginTime,
         Date lastActiveTime
 ) {
-    public UserRegisteredEvent {
+    public UserLoggedInEvent {
         if (createTime != null) {
             createTime = new Date(createTime.getTime());
         }
@@ -39,7 +39,7 @@ public record UserRegisteredEvent(
         return lastLoginTime != null ? new Date(lastLoginTime.getTime()) : null;
     }
 
-    public Date lastActiveTime() {
+    public Date lasActiveTime() {
         return lastActiveTime != null ? new Date(lastActiveTime.getTime()) : null;
     }
 }

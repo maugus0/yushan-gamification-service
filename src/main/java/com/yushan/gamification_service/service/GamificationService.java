@@ -45,6 +45,9 @@ public class GamificationService {
     @Value("${gamification.rewards.review-exp:5}")
     private double reviewExp;
 
+    @Value("2")
+    private double registrationYuan;
+
     @Value("${gamification.rewards.vote-exp:3}")
     private double voteExp;
 
@@ -70,6 +73,16 @@ public class GamificationService {
     private KafkaTemplate<String, Object> kafkaTemplate;
 
     private static final String INTERNAL_EVENTS_TOPIC = "internal_gamification_events";
+
+    @Transactional
+    public void processUserRegistration(UUID userId) {
+        YuanTransaction yuanTransaction = new YuanTransaction();
+        yuanTransaction.setUserId(userId);
+        yuanTransaction.setAmount(registrationYuan);
+        yuanTransaction.setDescription("Registration Reward");
+        yuanTransactionMapper.insert(yuanTransaction);
+        logger.debug("Inserted Yuan transaction for user: {} with amount: {}", userId, registrationYuan);
+    }
 
     @Transactional
     public void processUserLogin(UUID userId) {

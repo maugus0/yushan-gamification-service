@@ -1,20 +1,18 @@
 package com.yushan.gamification_service.listener;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yushan.gamification_service.dto.event.EventEnvelope;
+import com.yushan.gamification_service.dto.event.UserLoggedInEvent;
+import com.yushan.gamification_service.dto.event.UserRegisteredEvent;
 import com.yushan.gamification_service.service.GamificationService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
-import java.util.UUID;
-
+@Slf4j
 @Component
 public class UserEventListener {
-
-    private static final Logger log = LoggerFactory.getLogger(UserEventListener.class);
 
     @Autowired
     private GamificationService gamificationService;
@@ -23,25 +21,29 @@ public class UserEventListener {
     private ObjectMapper objectMapper;
 
     @KafkaListener(topics = "user.events", groupId = "gamification-service")
-    public void handleUserRegisteredEvent(String message) {
+    public void handleUserEvent(String message) {
         try {
-            JsonNode rootNode = objectMapper.readTree(message);
-            String userIdStr = rootNode.path("userId").asText(null);
+            EventEnvelope envelope = objectMapper.readValue(message, EventEnvelope.class);
 
-            if (userIdStr == null) {
-                log.warn("Received UserRegisteredEvent with null userId. Ignoring: {}", message);
-                return;
+            switch (envelope.eventType()) {
+                case "UserRegisteredEvent":
+                    UserRegisteredEvent registeredEvent = objectMapper.treeToValue(envelope.payload(), UserRegisteredEvent.class);
+                    log.info("Processing UserRegisteredEvent for email: {}", registeredEvent.email());
+                    gamificationService.processUserRegistration(registeredEvent.uuid());
+                    break;
+
+                case "UserLoggedInEvent":
+                    UserLoggedInEvent loggedInEvent = objectMapper.treeToValue(envelope.payload(), UserLoggedInEvent.class);
+                    log.info("Processing UserLoggedInEvent for email: {}", loggedInEvent.email());
+                    gamificationService.processUserLogin(loggedInEvent.uuid());
+                    break;
+
+                default:
+                    log.warn("Received unknown event type: {}", envelope.eventType());
+                    break;
             }
-
-            UUID userId = UUID.fromString(userIdStr);
-            log.info("Successfully parsed UserRegisteredEvent for userId: {}", userId);
-
-            gamificationService.processUserLogin(userId);
-
-            log.info("Welcome reward processing initiated for userId: {}", userId);
-
         } catch (Exception e) {
-            log.error("Failed to process UserRegisteredEvent: {}", message, e);
+            log.error("Failed to process event message: {}", message, e);
         }
     }
 }
