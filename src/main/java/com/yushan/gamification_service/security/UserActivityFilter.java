@@ -38,20 +38,16 @@ public class UserActivityFilter extends OncePerRequestFilter {
                 UUID userId = SecurityUtils.getCurrentUserId();
                 log.info("User ID from SecurityUtils: {}", userId);
                 
-                if (userId != null) {
-                    UserActivityEvent event = new UserActivityEvent(
-                            userId,
-                            "gamification-service",
-                            request.getRequestURI(),
-                            request.getMethod(),
-                            LocalDateTime.now()
-                    );
-                    
-                    kafkaEventProducerService.publishUserActivityEvent(event);
-                    log.info("Tracked user activity: userId={}, endpoint={}", userId, request.getRequestURI());
-                } else {
-                    log.warn("User ID is null");
-                }
+                UserActivityEvent event = new UserActivityEvent(
+                        userId,
+                        "gamification-service",
+                        request.getRequestURI(),
+                        request.getMethod(),
+                        LocalDateTime.now()
+                );
+                
+                kafkaEventProducerService.publishUserActivityEvent(event);
+                log.info("Tracked user activity: userId={}, endpoint={}", userId, request.getRequestURI());
             } else {
                 log.info("Request is not authenticated");
             }

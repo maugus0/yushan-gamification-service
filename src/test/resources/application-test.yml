@@ -1,0 +1,77 @@
+# Test Configuration for Gamification Service
+# This file overrides production config for testing
+
+spring:
+  application:
+    name: gamification-service
+
+  # Test Database Configuration
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+
+  # Disable JPA for tests
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+
+  # Disable Flyway for tests
+  flyway:
+    enabled: false
+
+  # MyBatis Configuration
+  mybatis:
+    mapper-locations: classpath:mapper/*.xml
+    type-aliases-package: com.yushan.gamification_service.entity
+
+  # Test Redis Configuration
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  # Test Kafka Configuration
+  kafka:
+    bootstrap-servers: localhost:9092
+
+# Server Configuration
+server:
+  port: 0  # Random port for tests
+
+# Disable Eureka for tests
+eureka:
+  client:
+    enabled: false
+
+# JWT Configuration for tests
+jwt:
+  secret: test-secret-key-for-jwt-token-generation-and-validation-2024
+  issuer: test-micro-service
+  algorithm: HS256
+
+# Gamification Configuration for tests
+gamification:
+  rewards:
+    daily-login-exp: 5
+    daily-login-yuan: 1
+    comment-exp: 5
+    review-exp: 5
+    vote-exp: 3
+    chapter-read-exp: 10
+    review-written-exp: 50
+    daily-login-points: 5
+  leaderboard:
+    cache-ttl: 300
+    update-interval: 60
+  achievements:
+    notification-enabled: true
+
+# Logging Configuration
+logging:
+  level:
+    com.yushan.gamification: DEBUG
+    org.springframework.cloud: WARN
+    org.springframework.security: WARN
