@@ -39,7 +39,7 @@ public record UserLoggedInEvent(
         return lastLoginTime != null ? new Date(lastLoginTime.getTime()) : null;
     }
 
-    public Date lasActiveTime() {
+    public Date lastActiveTime() {
         return lastActiveTime != null ? new Date(lastActiveTime.getTime()) : null;
     }
 }
