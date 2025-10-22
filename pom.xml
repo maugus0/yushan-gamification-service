@@ -55,6 +55,10 @@
         <gson.version>2.11.0</gson.version>
         <!-- JWT version -->
         <jjwt.version>0.12.6</jjwt.version>
+        <!-- Logback version - fix CVE-2025-11226 -->
+        <logback.version>1.5.19</logback.version>
+        <!-- BouncyCastle version - fix CVE-2025-8916 -->
+        <bouncycastle.version>1.79</bouncycastle.version>
     </properties>
     <dependencies>
         <dependency>
@@ -215,11 +219,6 @@
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-        </dependency>
-
         <!-- SpotBugs annotations -->
         <dependency>
             <groupId>com.github.spotbugs</groupId>
@@ -336,6 +335,25 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-testcontainers</artifactId>
+            </dependency>
+            
+            <!-- Force upgrade logback to fix CVE-2025-11226 -->
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+            
+            <!-- Force upgrade BouncyCastle to fix CVE-2025-8916 -->
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk18on</artifactId>
+                <version>${bouncycastle.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
