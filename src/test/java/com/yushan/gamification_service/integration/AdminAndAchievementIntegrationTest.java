@@ -7,6 +7,7 @@ import com.yushan.gamification_service.service.AchievementService;
 import com.yushan.gamification_service.service.GamificationService;
 import com.yushan.gamification_service.service.KafkaEventProducerService;
 import com.yushan.gamification_service.util.JwtTestUtil;
+import com.yushan.gamification_service.util.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +52,9 @@ public class AdminAndAchievementIntegrationTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @MockBean
     private KafkaEventProducerService kafkaEventProducerService;
