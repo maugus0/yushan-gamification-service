@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -87,6 +88,7 @@ public class GamificationControllerTest {
     }
 
     @Test
+    @WithMockUser
     void rewardVote_Success() {
         // Given
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
@@ -102,6 +104,7 @@ public class GamificationControllerTest {
     }
 
     @Test
+    @WithMockUser
     void checkVoteEligibility_Success() {
         // Given
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
