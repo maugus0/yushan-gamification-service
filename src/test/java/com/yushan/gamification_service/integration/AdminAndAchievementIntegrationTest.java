@@ -49,9 +49,6 @@ public class AdminAndAchievementIntegrationTest {
     @Autowired
     private JwtTestUtil jwtTestUtil;
 
-    // ↓↓↓ 1. 移除 @MockBean private JwtUtil jwtUtil;
-    // 我们将使用真实的 JwtUtil 来解析真实的 token
-
     @Autowired
     private ObjectMapper objectMapper;
 
