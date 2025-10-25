@@ -50,7 +50,7 @@ public class AdminAndAchievementIntegrationTest {
     @Autowired
     private AchievementService achievementService;
 
-    @Autowired
+    @MockBean
     private JwtTestUtil jwtTestUtil;
 
     @MockBean
