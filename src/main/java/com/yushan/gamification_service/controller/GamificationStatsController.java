@@ -8,7 +8,6 @@ import com.yushan.gamification_service.service.GamificationService;
 import com.yushan.gamification_service.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,6 +35,14 @@ public class GamificationStatsController {
         return ApiResponse.success(stats);
     }
 
+    @Operation(summary = "[USER] Get others gamification stats", description = "Get other user's gamification statistics including level, EXP, and Yuan balance")
+    @GetMapping("/stats/userId/{userId}")
+    public ApiResponse<GamificationStatsDTO> getGamificationStats(@PathVariable UUID userId) {
+        GamificationStatsDTO stats = gamificationService.getGamificationStatsForUser(userId);
+
+        return ApiResponse.success(stats);
+    }
+
     @Operation(summary = "[USER] Get my Yuan transactions", description = "Get current user's Yuan transaction history with pagination")
     @GetMapping("/yuan/transactions/me")
     public ApiResponse<List<YuanTransactionDTO>> getMyYuanTransactions(
@@ -51,6 +58,13 @@ public class GamificationStatsController {
     @GetMapping("/achievements/me")
     public ApiResponse<List<AchievementDTO>> getMyUnlockedAchievements() {
         UUID userId = SecurityUtils.getCurrentUserId();
+        List<AchievementDTO> achievements = gamificationService.getUnlockedAchievements(userId);
+        return ApiResponse.success(achievements);
+    }
+
+    @Operation(summary = "[USER] Get others achievements", description = "Get other user's unlocked achievements")
+    @GetMapping("/achievements/userId/{userId}")
+    public ApiResponse<List<AchievementDTO>> getUnlockedAchievements(@PathVariable UUID userId) {
         List<AchievementDTO> achievements = gamificationService.getUnlockedAchievements(userId);
         return ApiResponse.success(achievements);
     }

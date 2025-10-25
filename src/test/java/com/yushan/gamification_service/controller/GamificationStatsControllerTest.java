@@ -113,4 +113,32 @@ public class GamificationStatsControllerTest {
             verify(gamificationService).getUnlockedAchievements(testUserId);
         }
     }
+    @Test
+    void getGamificationStats_ForOtherUser_Success() {
+        // Given
+        when(gamificationService.getGamificationStatsForUser(testUserId)).thenReturn(testStatsDTO);
+
+        // When
+        ApiResponse<GamificationStatsDTO> response = gamificationStatsController.getGamificationStats(testUserId);
+
+        // Then
+        assertEquals(200, response.getCode());
+        assertEquals(testStatsDTO, response.getData());
+        verify(gamificationService).getGamificationStatsForUser(testUserId);
+    }
+
+    @Test
+    void getUnlockedAchievements_ForOtherUser_Success() {
+        // Given
+        when(gamificationService.getUnlockedAchievements(testUserId)).thenReturn(testAchievements);
+
+        // When
+        ApiResponse<List<AchievementDTO>> response = gamificationStatsController.getUnlockedAchievements(testUserId);
+
+        // Then
+        assertEquals(200, response.getCode());
+        assertEquals(testAchievements, response.getData());
+        verify(gamificationService).getUnlockedAchievements(testUserId);
+    }
+
 }
