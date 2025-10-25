@@ -3,6 +3,7 @@ package com.yushan.gamification_service.integration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yushan.gamification_service.TestcontainersConfiguration;
 import com.yushan.gamification_service.dto.admin.AdminAddYuanRequestDTO;
+import com.yushan.gamification_service.security.JwtAuthenticationFilter;
 import com.yushan.gamification_service.service.AchievementService;
 import com.yushan.gamification_service.service.GamificationService;
 import com.yushan.gamification_service.service.KafkaEventProducerService;
@@ -49,6 +50,9 @@ public class AdminAndAchievementIntegrationTest {
 
     @Autowired
     private JwtTestUtil jwtTestUtil;
+
+    @MockBean
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Autowired
     private ObjectMapper objectMapper;
