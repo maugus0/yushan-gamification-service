@@ -79,6 +79,9 @@ public class AdminAndAchievementIntegrationTest {
 
         registry.add("spring.data.redis.host", TestcontainersConfiguration.redis::getHost);
         registry.add("spring.data.redis.port", () -> TestcontainersConfiguration.redis.getMappedPort(6379));
+        registry.add("jwt.secret", () -> "your-super-secret-key-for-testing-purpose-only");
+        registry.add("jwt.expiration", () -> "3600000");
+
     }
 
     @BeforeEach
