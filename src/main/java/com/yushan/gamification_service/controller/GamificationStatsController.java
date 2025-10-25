@@ -68,4 +68,18 @@ public class GamificationStatsController {
         List<AchievementDTO> achievements = gamificationService.getUnlockedAchievements(userId);
         return ApiResponse.success(achievements);
     }
+
+    @Operation(summary = "Get all users with exp", description = "Get a list of all users along with their experience points for ranking purposes")
+    @GetMapping("/stats/all")
+    public ApiResponse<List<GamificationStatsDTO>> getAllGamificationStats() {
+        List<GamificationStatsDTO> dto = gamificationService.getAllUsersGamificationStats();
+        return ApiResponse.success("All Users Gamification Stats retrieved successfully", dto);
+    }
+
+    @Operation(summary = "Get batch users with exp", description = "Get a list of users along with their experience points for ranking purposes")
+    @PostMapping("/stats/batch")
+    public ApiResponse<List<GamificationStatsDTO>> getGamificationStatsBatch(@RequestBody List<UUID> userIds) {
+        List<GamificationStatsDTO> dto = gamificationService.getUsersGamificationStatsByUserIds(userIds);
+        return ApiResponse.success("User Gamification Stats retrieved successfully", dto);
+    }
 }

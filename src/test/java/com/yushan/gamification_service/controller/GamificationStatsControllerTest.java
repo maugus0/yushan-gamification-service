@@ -42,6 +42,7 @@ public class GamificationStatsControllerTest {
         testUserId = UUID.randomUUID();
 
         testStatsDTO = new GamificationStatsDTO(
+            testUserId.toString(),
             1, // level
             50.0, // currentExp
             100.0, // nextLevelExp
@@ -139,6 +140,43 @@ public class GamificationStatsControllerTest {
         assertEquals(200, response.getCode());
         assertEquals(testAchievements, response.getData());
         verify(gamificationService).getUnlockedAchievements(testUserId);
+    }
+
+    @Test
+    void getAllGamificationStats_Success() {
+        // Given
+        List<GamificationStatsDTO> allStats = Arrays.asList(
+                new GamificationStatsDTO(UUID.randomUUID().toString(), 2, 150.0, 200.0, 20.0),
+                testStatsDTO
+        );
+        when(gamificationService.getAllUsersGamificationStats()).thenReturn(allStats);
+
+        // When
+        ApiResponse<List<GamificationStatsDTO>> response = gamificationStatsController.getAllGamificationStats();
+
+        // Then
+        assertEquals(200, response.getCode());
+        assertEquals(allStats, response.getData());
+        verify(gamificationService).getAllUsersGamificationStats();
+    }
+
+    @Test
+    void getGamificationStatsBatch_Success() {
+        // Given
+        List<UUID> userIds = Arrays.asList(testUserId, UUID.randomUUID());
+        List<GamificationStatsDTO> batchStats = Arrays.asList(
+                testStatsDTO,
+                new GamificationStatsDTO(userIds.get(1).toString(), 3, 250.0, 300.0, 50.0)
+        );
+        when(gamificationService.getUsersGamificationStatsByUserIds(userIds)).thenReturn(batchStats);
+
+        // When
+        ApiResponse<List<GamificationStatsDTO>> response = gamificationStatsController.getGamificationStatsBatch(userIds);
+
+        // Then
+        assertEquals(200, response.getCode());
+        assertEquals(batchStats, response.getData());
+        verify(gamificationService).getUsersGamificationStatsByUserIds(userIds);
     }
 
 }

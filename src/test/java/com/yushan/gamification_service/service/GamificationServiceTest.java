@@ -21,10 +21,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -384,4 +381,109 @@ public class GamificationServiceTest {
         });
         verify(yuanTransactionMapper, never()).insert(any());
     }
+
+    @Test
+    void getAllUsersGamificationStats_Success() {
+        // Given
+        UUID user1 = UUID.randomUUID();
+        UUID user2 = UUID.randomUUID();
+
+        Map<String, Object> user1Exp = new HashMap<>();
+        user1Exp.put("userId", user1);
+        user1Exp.put("totalAmount", 150.0);
+
+        Map<String, Object> user2Exp = new HashMap<>();
+        user2Exp.put("userId", user2);
+        user2Exp.put("totalAmount", 250.0);
+
+        Map<String, Object> user1Yuan = new HashMap<>();
+        user1Yuan.put("userId", user1);
+        user1Yuan.put("totalAmount", 20.0);
+        // User2 has no yuan transaction for testing purposes
+
+        when(expTransactionMapper.sumAmountGroupedByUser()).thenReturn(Arrays.asList(user1Exp, user2Exp));
+
+        when(levelService.calculateLevel(150.0)).thenReturn(2);
+        when(levelService.getExpForNextLevel(2)).thenReturn(500.0);
+        when(levelService.calculateLevel(250.0)).thenReturn(3);
+        when(levelService.getExpForNextLevel(3)).thenReturn(2000.0);
+
+        // When
+        List<GamificationStatsDTO> result = gamificationService.getAllUsersGamificationStats();
+
+        // Then
+        assertEquals(2, result.size());
+        assertTrue(result.stream().anyMatch(dto ->
+                dto.getUserId().equals(user1.toString()) &&
+                        dto.getLevel() == 2 &&
+                        dto.getCurrentExp() == 150.0 &&
+                        dto.getTotalExpForNextLevel() == 500.0
+        ));
+        assertTrue(result.stream().anyMatch(dto ->
+                dto.getUserId().equals(user2.toString()) &&
+                        dto.getLevel() == 3 &&
+                        dto.getCurrentExp() == 250.0 &&
+                        dto.getTotalExpForNextLevel() == 2000.0
+        ));
+
+        verify(expTransactionMapper).sumAmountGroupedByUser();
+    }
+
+    @Test
+    void getUsersGamificationStatsByUserIds_Success() {
+        // Given
+        UUID user1 = UUID.randomUUID();
+        UUID user2 = UUID.randomUUID();
+        List<UUID> userIds = Arrays.asList(user1, user2);
+
+        Map<String, Object> user1Exp = new HashMap<>();
+        user1Exp.put("userId", user1);
+        user1Exp.put("totalAmount", 150.0);
+
+        Map<String, Object> user1Yuan = new HashMap<>();
+        user1Yuan.put("userId", user1);
+        user1Yuan.put("totalAmount", 20.0);
+
+        // Mocking so that user2 has exp but no yuan
+        when(expTransactionMapper.sumAmountGroupedByUsers(userIds)).thenReturn(Collections.singletonList(user1Exp));
+
+        when(levelService.calculateLevel(150.0)).thenReturn(2);
+        when(levelService.getExpForNextLevel(2)).thenReturn(500.0);
+        when(levelService.calculateLevel(0.0)).thenReturn(1); // For user2 with 0 exp
+        when(levelService.getExpForNextLevel(1)).thenReturn(100.0);
+
+        // When
+        List<GamificationStatsDTO> result = gamificationService.getUsersGamificationStatsByUserIds(userIds);
+
+        // Then
+        assertEquals(2, result.size());
+        assertTrue(result.stream().anyMatch(dto ->
+                dto.getUserId().equals(user1.toString()) &&
+                        dto.getLevel() == 2 &&
+                        dto.getCurrentExp() == 150.0 &&
+                        dto.getTotalExpForNextLevel() == 500.0
+        ));
+        assertTrue(result.stream().anyMatch(dto ->
+                dto.getUserId().equals(user2.toString()) &&
+                        dto.getLevel() == 1 &&
+                        dto.getCurrentExp() == 0.0 && // Default value
+                        dto.getTotalExpForNextLevel() == 100.0
+        ));
+
+        verify(expTransactionMapper).sumAmountGroupedByUsers(userIds);
+    }
+
+    @Test
+    void getUsersGamificationStatsByUserIds_EmptyList_ReturnsEmpty() {
+        // Given
+        List<UUID> userIds = Collections.emptyList();
+
+        // When
+        List<GamificationStatsDTO> result = gamificationService.getUsersGamificationStatsByUserIds(userIds);
+
+        // Then
+        assertTrue(result.isEmpty());
+        verify(expTransactionMapper, never()).sumAmountGroupedByUsers(any());
+    }
+
 }
