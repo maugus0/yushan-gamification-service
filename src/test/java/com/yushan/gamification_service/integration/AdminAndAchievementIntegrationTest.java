@@ -59,7 +59,7 @@ public class AdminAndAchievementIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired
+    @MockBean
     private JwtUtil jwtUtil;
 
     @MockBean
