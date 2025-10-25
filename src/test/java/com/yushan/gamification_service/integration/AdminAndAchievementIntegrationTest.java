@@ -1,43 +1,43 @@
-//package com.yushan.gamification_service.integration;
-//
-//import com.fasterxml.jackson.databind.ObjectMapper;
-//import com.yushan.gamification_service.TestcontainersConfiguration;
-//import com.yushan.gamification_service.dto.admin.AdminAddYuanRequestDTO;
-//import com.yushan.gamification_service.security.JwtAuthenticationFilter;
-//import com.yushan.gamification_service.service.AchievementService;
-//import com.yushan.gamification_service.service.GamificationService;
-//import com.yushan.gamification_service.service.KafkaEventProducerService;
-//import com.yushan.gamification_service.util.JwtTestUtil;
-//import com.yushan.gamification_service.util.JwtUtil;
-//import org.junit.jupiter.api.BeforeEach;
-//import org.junit.jupiter.api.Test;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.boot.test.context.SpringBootTest;
-//import org.springframework.boot.test.mock.mockito.MockBean;
-//import org.springframework.http.MediaType;
-//import org.springframework.kafka.core.KafkaTemplate;
-//import org.springframework.test.context.ActiveProfiles;
-//import org.springframework.test.context.DynamicPropertyRegistry;
-//import org.springframework.test.context.DynamicPropertySource;
-//import org.springframework.test.web.servlet.MockMvc;
-//import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-//import org.springframework.transaction.annotation.Transactional;
-//import org.springframework.web.context.WebApplicationContext;
-//
-//import java.util.UUID;
-//
-//import static org.hamcrest.Matchers.*;
-//import static org.junit.jupiter.api.Assertions.assertEquals;
-//import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-//import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-//import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-//import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-//
-//@SpringBootTest
-//@ActiveProfiles("integration-test")
-//@Transactional
-//@org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable(named = "CI", matches = "true")
-//public class AdminAndAchievementIntegrationTest {
+package com.yushan.gamification_service.integration;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yushan.gamification_service.TestcontainersConfiguration;
+import com.yushan.gamification_service.dto.admin.AdminAddYuanRequestDTO;
+import com.yushan.gamification_service.security.JwtAuthenticationFilter;
+import com.yushan.gamification_service.service.AchievementService;
+import com.yushan.gamification_service.service.GamificationService;
+import com.yushan.gamification_service.service.KafkaEventProducerService;
+import com.yushan.gamification_service.util.JwtTestUtil;
+import com.yushan.gamification_service.util.JwtUtil;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
+
+import java.util.UUID;
+
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@SpringBootTest
+@ActiveProfiles("integration-test")
+@Transactional
+@org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable(named = "CI", matches = "true")
+public class AdminAndAchievementIntegrationTest {
 //
 //    @Autowired
 //    private WebApplicationContext webApplicationContext;
@@ -155,4 +155,4 @@
 //                .andExpect(jsonPath("$.code").value(200))
 //                .andExpect(jsonPath("$.data.currentExp", greaterThan(0.0)));
 //    }
-//}
+}
