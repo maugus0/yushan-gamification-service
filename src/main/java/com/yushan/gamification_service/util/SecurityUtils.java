@@ -23,25 +23,4 @@ public class SecurityUtils {
         }
         throw new RuntimeException("User not authenticated");
     }
-
-    /**
-     * Get current user details
-     * @return Current user details
-     */
-    public static CustomUserDetails getCurrentUser() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.getPrincipal() instanceof CustomUserDetails) {
-            return (CustomUserDetails) auth.getPrincipal();
-        }
-        throw new RuntimeException("User not authenticated");
-    }
-
-    /**
-     * Check if current user is authenticated
-     * @return true if user is authenticated
-     */
-    public static boolean isAuthenticated() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof CustomUserDetails;
-    }
 }

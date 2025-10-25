@@ -28,7 +28,7 @@ public class AdminGamificationController {
     @Operation(summary = "[ADMIN] Get Yuan transactions", description = "Get all Yuan transactions with filtering options for admin monitoring")
     @GetMapping("/yuan/transactions")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public ResponseEntity<ApiResponse<PageResponseDTO<AdminYuanTransactionDTO>>> getYuanTransactions(
+    public ApiResponse<PageResponseDTO<AdminYuanTransactionDTO>> getYuanTransactions(
             @RequestParam(required = false) UUID userId,
             @RequestParam(required = false) OffsetDateTime startDate,
             @RequestParam(required = false) OffsetDateTime endDate,
@@ -39,18 +39,18 @@ public class AdminGamificationController {
                 userId, startDate, endDate, page, size
         );
 
-        return ResponseEntity.ok(ApiResponse.success(pagedResponse));
+        return ApiResponse.success(pagedResponse);
     }
 
     @Operation(summary = "[ADMIN] Add Yuan to user", description = "Add Yuan to user's balance by admin")
     @PostMapping("/yuan/add")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public ResponseEntity<ApiResponse<String>> adminAddYuan(@Valid @RequestBody AdminAddYuanRequestDTO request) {
+    public ApiResponse<String> adminAddYuan(@Valid @RequestBody AdminAddYuanRequestDTO request) {
         gamificationService.adminAddYuan(request.getUserId(), request.getAmount(), request.getReason());
         
         String message = String.format("Successfully added %.2f Yuan to user %s", 
                 request.getAmount(), request.getUserId());
         
-        return ResponseEntity.ok(ApiResponse.success(message));
+        return ApiResponse.success(message);
     }
 }

@@ -1,77 +1,38 @@
-# Test Configuration for Gamification Service
-# This file overrides production config for testing
-
+# Test configuration for JWT tests
 spring:
-  application:
-    name: gamification-service
-
-  # Test Database Configuration
   datasource:
-    url: jdbc:h2:mem:testdb
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driver-class-name: org.h2.Driver
     username: sa
-    password: 
+    password:
+    # Initialize database schema
+    sql:
+      init:
+        mode: always
+        schema-locations: classpath:schema.sql
+        continue-on-error: false
 
-  # Disable JPA for tests
-  jpa:
-    hibernate:
-      ddl-auto: create-drop
-    show-sql: false
-
-  # Disable Flyway for tests
-  flyway:
-    enabled: false
-
-  # MyBatis Configuration
+  # MyBatis configuration for testing
   mybatis:
     mapper-locations: classpath:mapper/*.xml
     type-aliases-package: com.yushan.gamification_service.entity
+    configuration:
+      map-underscore-to-camel-case: true
+      log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
-  # Test Redis Configuration
-  data:
-    redis:
-      host: localhost
-      port: 6379
+  h2:
+    console:
+      enabled: true
 
-  # Test Kafka Configuration
-  kafka:
-    bootstrap-servers: localhost:9092
-
-# Server Configuration
-server:
-  port: 0  # Random port for tests
-
-# Disable Eureka for tests
-eureka:
-  client:
-    enabled: false
-
-# JWT Configuration for tests
+# JWT Configuration for testing
 jwt:
-  secret: test-secret-key-for-jwt-token-generation-and-validation-2024
-  issuer: test-micro-service
+  secret: TestJWTSecretKeyForGamificationServiceTestingPurposesOnly
+  issuer: yushan-gamification-service-test
   algorithm: HS256
 
-# Gamification Configuration for tests
-gamification:
-  rewards:
-    daily-login-exp: 5
-    daily-login-yuan: 1
-    comment-exp: 5
-    review-exp: 5
-    vote-exp: 3
-    chapter-read-exp: 10
-    review-written-exp: 50
-    daily-login-points: 5
-  leaderboard:
-    cache-ttl: 300
-    update-interval: 60
-  achievements:
-    notification-enabled: true
-
-# Logging Configuration
+# Logging configuration for tests
 logging:
   level:
-    com.yushan.gamification: DEBUG
-    org.springframework.cloud: WARN
-    org.springframework.security: WARN
+    com.yushan.gamification_service: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
