@@ -72,7 +72,7 @@ public class SecurityConfig {
                         // CORS preflight requests
                         .requestMatchers(HttpMethod.OPTIONS, "/api/**").permitAll()
                         .requestMatchers( "/api/v1/gamification/stats/all").permitAll()
-                        .requestMatchers("/api/v1/gamification//stats/batch").permitAll()
+                        .requestMatchers("/api/v1/gamification/stats/batch").permitAll()
 
                         // Admin gamification endpoints - require ADMIN role
                         .requestMatchers("/api/v1/gamification/admin/**").hasRole("ADMIN")

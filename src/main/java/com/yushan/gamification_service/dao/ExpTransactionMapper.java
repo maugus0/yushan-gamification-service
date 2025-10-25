@@ -15,7 +15,7 @@ public interface ExpTransactionMapper {
 
     Double sumAmountByUserId(@Param("userId") UUID userId);
 
-    List<Map<String, Object>>sumAmountGroupedByUser();
+    List<Map<String, Object>> sumAmountGroupedByUser();
 
-    List<Map<String, Object>>sumAmountGroupedByUsers(List<UUID> userIds);
+    List<Map<String, Object>> sumAmountGroupedByUsers(List<UUID> userIds);
 }
