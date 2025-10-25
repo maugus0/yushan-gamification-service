@@ -37,8 +37,8 @@ public class GamificationStatsController {
 
     @Operation(summary = "[USER] Get others gamification stats", description = "Get other user's gamification statistics including level, EXP, and Yuan balance")
     @GetMapping("/stats/userId/{userId}")
-    public ApiResponse<GamificationStatsDTO> getGamificationStats(@PathVariable String userId) {
-        GamificationStatsDTO stats = gamificationService.getGamificationStatsForUser(UUID.fromString(userId));
+    public ApiResponse<GamificationStatsDTO> getGamificationStats(@PathVariable UUID userId) {
+        GamificationStatsDTO stats = gamificationService.getGamificationStatsForUser(userId);
 
         return ApiResponse.success(stats);
     }
@@ -64,8 +64,8 @@ public class GamificationStatsController {
 
     @Operation(summary = "[USER] Get others achievements", description = "Get other user's unlocked achievements")
     @GetMapping("/achievements/userId/{userId}")
-    public ApiResponse<List<AchievementDTO>> getUnlockedAchievements(@PathVariable String userId) {
-        List<AchievementDTO> achievements = gamificationService.getUnlockedAchievements(UUID.fromString(userId));
+    public ApiResponse<List<AchievementDTO>> getUnlockedAchievements(@PathVariable UUID userId) {
+        List<AchievementDTO> achievements = gamificationService.getUnlockedAchievements(userId);
         return ApiResponse.success(achievements);
     }
 }

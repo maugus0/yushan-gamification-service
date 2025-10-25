@@ -116,11 +116,10 @@ public class GamificationStatsControllerTest {
     @Test
     void getGamificationStats_ForOtherUser_Success() {
         // Given
-        String userIdString = testUserId.toString();
         when(gamificationService.getGamificationStatsForUser(testUserId)).thenReturn(testStatsDTO);
 
         // When
-        ApiResponse<GamificationStatsDTO> response = gamificationStatsController.getGamificationStats(userIdString);
+        ApiResponse<GamificationStatsDTO> response = gamificationStatsController.getGamificationStats(testUserId);
 
         // Then
         assertEquals(200, response.getCode());
@@ -131,11 +130,10 @@ public class GamificationStatsControllerTest {
     @Test
     void getUnlockedAchievements_ForOtherUser_Success() {
         // Given
-        String userIdString = testUserId.toString();
         when(gamificationService.getUnlockedAchievements(testUserId)).thenReturn(testAchievements);
 
         // When
-        ApiResponse<List<AchievementDTO>> response = gamificationStatsController.getUnlockedAchievements(userIdString);
+        ApiResponse<List<AchievementDTO>> response = gamificationStatsController.getUnlockedAchievements(testUserId);
 
         // Then
         assertEquals(200, response.getCode());
