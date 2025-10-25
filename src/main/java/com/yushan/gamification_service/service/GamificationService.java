@@ -26,9 +26,7 @@ import com.yushan.gamification_service.dto.transaction.AdminYuanTransactionDTO;
 import java.time.OffsetDateTime;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -183,7 +181,7 @@ public class GamificationService {
 
         Double expForNextLevel = levelService.getExpForNextLevel(currentLevel);
 
-        return new GamificationStatsDTO(currentLevel, totalExpValue, expForNextLevel, yuanBalanceValue);
+        return new GamificationStatsDTO(userId.toString(), currentLevel, totalExpValue, expForNextLevel, yuanBalanceValue);
     }
 
     public List<YuanTransactionDTO> getTransactionHistory(UUID userId, int page, int size) {
@@ -396,5 +394,45 @@ public class GamificationService {
         yuanTransactionMapper.insert(yuanTransaction);
         
         logger.info("Successfully added {} Yuan to user {} by admin", amount, userId);
+    }
+
+    public List<GamificationStatsDTO> getAllUsersGamificationStats() {
+        List<Map<String, Object>> allUsersExp = expTransactionMapper.sumAmountGroupedByUser();
+
+        Map<UUID, Double> expMap = allUsersExp.stream()
+                .collect(Collectors.toMap(
+                        map -> (UUID) map.get("userId"),
+                        map -> ((Number) map.get("totalAmount")).doubleValue()
+                ));
+
+        Set<UUID> allUserIds = new HashSet<>(expMap.keySet());
+
+        return allUserIds.stream().map(userId -> {
+            double totalExp = expMap.getOrDefault(userId, 0.0);
+            int currentLevel = levelService.calculateLevel(totalExp);
+            Double expForNextLevel = levelService.getExpForNextLevel(currentLevel);
+            return new GamificationStatsDTO(userId.toString(), currentLevel, totalExp, expForNextLevel, null);
+        }).collect(Collectors.toList());
+    }
+
+    public List<GamificationStatsDTO> getUsersGamificationStatsByUserIds(List<UUID> userIds) {
+        if (userIds == null || userIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<Map<String, Object>> usersExp = expTransactionMapper.sumAmountGroupedByUsers(userIds);
+
+        Map<UUID, Double> expMap = usersExp.stream()
+                .collect(Collectors.toMap(
+                        map -> (UUID) map.get("userId"),
+                        map -> ((Number) map.get("totalAmount")).doubleValue()
+                ));
+
+        return userIds.stream().map(userId -> {
+            double totalExp = expMap.getOrDefault(userId, 0.0);
+            int currentLevel = levelService.calculateLevel(totalExp);
+            Double expForNextLevel = levelService.getExpForNextLevel(currentLevel);
+            return new GamificationStatsDTO(userId.toString(), currentLevel, totalExp, expForNextLevel, null);
+        }).collect(Collectors.toList());
     }
 }

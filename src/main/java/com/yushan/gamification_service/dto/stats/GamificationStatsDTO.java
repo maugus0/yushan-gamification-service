@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GamificationStatsDTO {
-
+    private String userId;
     private int level;
     private Double currentExp;
     private Double totalExpForNextLevel;

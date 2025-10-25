@@ -1,0 +1,9 @@
+INSERT INTO exp_transactions (user_id, amount, reason, created_at) VALUES
+('fe224742-3395-4f13-8cc8-ca1d7f6a6371', 100, 'Initial EXP for user registration', CURRENT_TIMESTAMP),
+('fe224742-3395-4f13-8cc8-ca1d7f6a6371', 150, 'Initial EXP for user registration', CURRENT_TIMESTAMP),
+('550e8400-e29b-41d4-a716-446655440001', 200, 'Initial EXP for user registration', CURRENT_TIMESTAMP),
+('550e8400-e29b-41d4-a716-446655440001', 200, 'Initial EXP for user registration', CURRENT_TIMESTAMP),
+('550e8400-e29b-41d4-a716-446655440001', 200, 'Initial EXP for user registration', CURRENT_TIMESTAMP),
+('550e8400-e29b-41d4-a716-446655440002', 200, 'Initial EXP for user registration', CURRENT_TIMESTAMP),
+('550e8400-e29b-41d4-a716-446655440002', 200, 'Initial EXP for user registration', CURRENT_TIMESTAMP),
+('550e8400-e29b-41d4-a716-446655440003', 200, 'Initial EXP for user registration', CURRENT_TIMESTAMP);

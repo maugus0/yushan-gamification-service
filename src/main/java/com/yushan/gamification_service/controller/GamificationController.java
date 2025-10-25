@@ -7,7 +7,6 @@ import com.yushan.gamification_service.service.GamificationService;
 import com.yushan.gamification_service.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
