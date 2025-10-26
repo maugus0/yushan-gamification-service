@@ -14,7 +14,6 @@ import java.util.UUID;
 @Tag(name = "Gamification Management", description = "APIs for managing gamification features")
 @RestController
 @RequestMapping("/api/v1/gamification")
-@CrossOrigin(origins = "*")
 public class GamificationController {
 
     private final GamificationService gamificationService;
