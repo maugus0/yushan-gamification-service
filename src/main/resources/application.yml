@@ -12,3 +12,21 @@ spring:
     mapper-locations: classpath:mapper/*.xml
     type-aliases-package: com.yushan.gamification_service.entity
 
+# Actuator Configuration for Prometheus Metrics
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    prometheus:
+      enabled: true
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: gamification-service
+      environment: production
